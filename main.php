@@ -57,8 +57,11 @@ class TimeSlot
 				
 				$schedule = $resource->getSchedule();
 				$bookings = $resource->getBookings();
-				
-	/* CALENDAR CODE START */
+
+
+
+/* ##########  DETTA ÄR OTROLIG FULKOD FÖR ATT VISA KALENDERN - MÅSTE ÄNDRAS!!! */			
+/* CALENDAR CODE START */
 				
 				$month = 10;
 				$year = 2011;
@@ -146,7 +149,7 @@ class TimeSlot
 				// add table code to return
 				$return = $return.$calendar;
 				
-	/* CALENDAR CODE END */
+/* #################### CALENDAR CODE END */
 				
 				$return = $return.'</ul></li>';
 			}
