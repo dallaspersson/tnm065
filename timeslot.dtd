@@ -1,0 +1,31 @@
+<!ELEMENT timeslot ()>
+
+<!ELEMENT resources>
+<!ELEMENT resource>
+<!ELEMENT id>
+<!ELEMENT resource-type>
+
+<!ELEMENT bookings>
+<!ELEMENT booking>
+<!ELEMENT user-id>
+
+<!ELEMENT users>
+<!ELEMENT user>
+
+<!ELEMENT firstname>
+<!ELEMENT lastname>
+<!ELEMENT mail>
+<!ELEMENT avatar>
+<!ELEMENT allowances>
+<!ELEMENT allowance>
+<!ELEMENT allowance-id>
+<!ELEMENT time-per-period>
+<!ELEMENT max-booking-length>
+<!ELEMENT period>
+<!ELEMENT time-used>
+<!ELEMENT resource-type>
+<!ELEMENT id>
+<!ELEMENT role>
+
+<!ELEMENT timestamp>
+<!ELEMENT duration>
