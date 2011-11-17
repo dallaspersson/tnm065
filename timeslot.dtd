@@ -1,31 +1,38 @@
-<!ELEMENT timeslot ()>
+<!ELEMENT timeslot (resources?, bookings?)>
 
-<!ELEMENT resources>
-<!ELEMENT resource>
-<!ELEMENT id>
+<!ELEMENT resources (resource+)>
+<!ELEMENT resource (id, resource-type)>
+<!ELEMENT id (#PCDATA)>
 <!ELEMENT resource-type>
 
-<!ELEMENT bookings>
-<!ELEMENT booking>
-<!ELEMENT user-id>
+<!ELEMENT bookings (booking+)>
+<!ELEMENT booking (booked-slots, resource-id, user-id)>
+<!ELEMENT user-id ID>
 
-<!ELEMENT users>
-<!ELEMENT user>
+<!ELEMENT slots (slot*)>
+<!ELEMENT slot (id,time-used)>
 
-<!ELEMENT firstname>
-<!ELEMENT lastname>
-<!ELEMENT mail>
-<!ELEMENT avatar>
-<!ELEMENT allowances>
-<!ELEMENT allowance>
-<!ELEMENT allowance-id>
-<!ELEMENT time-per-period>
-<!ELEMENT max-booking-length>
-<!ELEMENT period>
-<!ELEMENT time-used>
-<!ELEMENT resource-type>
-<!ELEMENT id>
-<!ELEMENT role>
+<!ELEMENT booked-slots (slot-id)>
+<!ELEMENT slot-id ID>
 
-<!ELEMENT timestamp>
-<!ELEMENT duration>
+<!ELEMENT users (users+)>
+<!ELEMENT user (firstname, lastname, mail, avatar?, id, role, allowances?)>
+
+<!ELEMENT firstname (#PCDATA)>
+<!ELEMENT lastname (#PCDATA)>
+<!ELEMENT mail (#PCDATA)>
+<!ELEMENT avatar (#PCDATA)>
+<!ELEMENT user-allowances (user-allowance+)>
+<!ELEMENT user-allowance (allowance-id, time-used)>
+<!ELEMENT allowance-id ID>
+<!ELEMENT time-per-period (#PCDATA)>
+
+<!ELEMENT allowances (allowance+)>
+<!ELEMENT allowance (max-booking,period,time-used,resource-type)>
+<!ELEMENT max-booking-length (#PCDATA)>
+<!ELEMENT period (period-id)>
+<!ELEMENT period-id ID>
+<!ELEMENT time-used (#PCDATA)>
+<!ELEMENT resource-type (#PCDATA)>
+<!ELEMENT id ID>
+<!ELEMENT role (#PCDATA)>
