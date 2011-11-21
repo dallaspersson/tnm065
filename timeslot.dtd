@@ -10,7 +10,7 @@
 <!ELEMENT user-id ID>
 
 <!ELEMENT slots (slot*)>
-<!ELEMENT slot (id,time-used)>
+<!ELEMENT slot (id,time-range)>
 
 <!ELEMENT booked-slots (slot-id)>
 <!ELEMENT slot-id ID>
@@ -32,7 +32,18 @@
 <!ELEMENT max-booking-length (#PCDATA)>
 <!ELEMENT period (period-id)>
 <!ELEMENT period-id ID>
+<!ELEMENT time-range (#PCDATA)>
 <!ELEMENT time-used (#PCDATA)>
 <!ELEMENT resource-type (#PCDATA)>
 <!ELEMENT id ID>
 <!ELEMENT role (#PCDATA)>
+
+
+<!ATTLIST time-range start CDATA #REQUIRED>
+<!ATTLIST time-range end CDATA #REQUIRED>
+<!ATTLIST time-range status CDATA #IMPLIED>
+
+<!ATTLIST period start CDATA #REQUIRED>
+<!ATTLIST period end CDATA #REQUIRED>
+
+<!ATTLIST time-used id ID #REQUIRED>
