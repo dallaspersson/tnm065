@@ -149,13 +149,93 @@ class TimeSlot
 				// add table code to return
 				$return = $return.$calendar;
 				
-/* #################### CALENDAR CODE END */
+/* /#################### CALENDAR CODE END */
 				
 				$return = $return.'</ul></li>';
 			}
 			$return = $return.'</ul>';
 		}
-		return $return;
+		
+		
+		
+/**
+ *	UNFINISHED CODE BELOW - Move up when finished
+ */
+		$return = '<?xml version="1.0" standalone="no"?>';
+		$return.= '<!DOCTYPE timeslot SYSTEM "' . plugin_dir_path(__FILE__) . 'timeslot.dtd">';
+		$return.= '<timeslot>';
+		$return.= '<resources>';
+		$return.= '<resource>';
+		$return.= '<id/>';
+		$return.= '<resource-type/>';
+		$return.= '<description/>';
+		$return.= '</resource>';
+		$return.= '</resources>';
+
+		$return.= '<users>';
+		$return.= '<user>';
+		$return.= '<firstname>Marcus</firstname>';
+		$return.= '<lastname>Stenbeck</lastname>';
+		$return.= '<e-mail>marcus.stenbeck@gmail.com</e-mail>';
+		$return.= '<avatar/>';
+		$return.= '<id/>';
+		$return.= '<role/>';
+		$return.= '<user-allowances>';
+		$return.= '<user-allowance>';
+		$return.= '<allowance-id/>';
+		$return.= '<time-used period-id=""/>';
+		$return.= '</user-allowance>';
+		$return.= '</user-allowances>';
+		$return.= '</user>';
+		$return.= '</users>';
+	
+		$return.= '<slots>';
+		$return.= '<slot>';
+		$return.= '<id/>';
+		$return.= '<time-range start="" end="" status=""/>';
+		$return.= '</slot>';
+		$return.= '</slots>';
+	
+		$return.= '<bookings>';
+		$return.= '<booking>';
+		$return.= '<booked-slots>';
+		$return.= '<slot-id/>';
+		$return.= '</booked-slots>';
+		$return.= '<resource-id/>';
+		$return.= '<user-id/>';
+		$return.= '</booking>';
+		$return.= '</bookings>';
+
+		$return.= '<allowances>';
+		$return.= '<allowance>';
+		$return.= '<resource-type/>';
+		$return.= '<time-per-period/>';
+		$return.= '<max-booking-length/>';
+			
+		$return.= '<periods>';
+		$return.= '<period-id start="" end=""/>';
+		$return.= '</periods>';
+		$return.= '</allowance>';
+		$return.= '</allowances>';
+		$return.= '</timeslot>';
+		
+		$xmlstr = $return;
+		
+		// Do processing!!!
+		$xml = new DOMDocument;
+		$xml->loadXML($xmlstr);
+		
+		$xsl = new DOMDocument;
+		$xsl->load(plugin_dir_path(__FILE__)."timeslot-html-screen.xsl");
+		
+		$parser = new XSLTProcessor;
+		$parser->importStyleSheet($xsl);
+		
+		$html = $parser->transformToXML($xml);
+		
+		echo $xml->validate() ? "Validated!" : "Not validated. Let sadness commence.";
+		
+		return $html;
 	}
 }
 
