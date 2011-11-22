@@ -1,49 +1,50 @@
-<!ELEMENT timeslot (resources?, bookings?)>
+<!ELEMENT timeslot (resources?, users?, slots?, bookings?, allowances?)>
 
 <!ELEMENT resources (resource+)>
-<!ELEMENT resource (id, resource-type)>
+<!ELEMENT resource (id, resource-type, description?)>
 <!ELEMENT id (#PCDATA)>
-<!ELEMENT resource-type>
+<!ELEMENT resource-type (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
 
 <!ELEMENT bookings (booking+)>
 <!ELEMENT booking (booked-slots, resource-id, user-id)>
-<!ELEMENT user-id ID>
+<!ELEMENT user-id (#PCDATA)>
 
 <!ELEMENT slots (slot*)>
 <!ELEMENT slot (id,time-range)>
 
 <!ELEMENT booked-slots (slot-id)>
-<!ELEMENT slot-id ID>
+<!ELEMENT slot-id (#PCDATA)>
 
-<!ELEMENT users (users+)>
-<!ELEMENT user (firstname, lastname, mail, avatar?, id, role, allowances?)>
+<!ELEMENT users (user+)>
+<!ELEMENT user (firstname, lastname, e-mail, avatar?, id, role, user-allowances?)>
 
 <!ELEMENT firstname (#PCDATA)>
 <!ELEMENT lastname (#PCDATA)>
-<!ELEMENT mail (#PCDATA)>
+<!ELEMENT e-mail (#PCDATA)>
 <!ELEMENT avatar (#PCDATA)>
 <!ELEMENT user-allowances (user-allowance+)>
 <!ELEMENT user-allowance (allowance-id, time-used)>
-<!ELEMENT allowance-id ID>
+<!ELEMENT allowance-id (#PCDATA)>
 <!ELEMENT time-per-period (#PCDATA)>
 
 <!ELEMENT allowances (allowance+)>
-<!ELEMENT allowance (max-booking,period,time-used,resource-type)>
+<!ELEMENT allowance (max-booking-length|periods|resource-type|time-per-period)*>
 <!ELEMENT max-booking-length (#PCDATA)>
-<!ELEMENT period (period-id)>
-<!ELEMENT period-id ID>
+<!ELEMENT periods (period)>
+<!ELEMENT period (#PCDATA)>
 <!ELEMENT time-range (#PCDATA)>
 <!ELEMENT time-used (#PCDATA)>
-<!ELEMENT resource-type (#PCDATA)>
-<!ELEMENT id ID>
 <!ELEMENT role (#PCDATA)>
+<!ELEMENT resource-id (#PCDATA)>
 
 
 <!ATTLIST time-range start CDATA #REQUIRED>
 <!ATTLIST time-range end CDATA #REQUIRED>
 <!ATTLIST time-range status CDATA #IMPLIED>
 
+<!ATTLIST period id ID #REQUIRED>
 <!ATTLIST period start CDATA #REQUIRED>
 <!ATTLIST period end CDATA #REQUIRED>
 
-<!ATTLIST time-used id ID #REQUIRED>
+<!ATTLIST time-used period-id IDREF #REQUIRED>

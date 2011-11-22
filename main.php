@@ -183,7 +183,7 @@ class TimeSlot
 		$return.= '<user-allowances>';
 		$return.= '<user-allowance>';
 		$return.= '<allowance-id/>';
-		$return.= '<time-used period-id=""/>';
+		$return.= '<time-used period-id="baize"/>';
 		$return.= '</user-allowance>';
 		$return.= '</user-allowances>';
 		$return.= '</user>';
@@ -213,7 +213,7 @@ class TimeSlot
 		$return.= '<max-booking-length/>';
 			
 		$return.= '<periods>';
-		$return.= '<period-id start="" end=""/>';
+		$return.= '<period id="baize" start="" end=""/>';
 		$return.= '</periods>';
 		$return.= '</allowance>';
 		$return.= '</allowances>';
