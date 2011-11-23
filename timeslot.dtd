@@ -1,4 +1,4 @@
-<!ELEMENT timeslot (resources?, users?, slots?, bookings?, allowances?)>
+<!ELEMENT timeslot (resources|users|slots|bookings|allowances)*>
 
 <!ELEMENT resources (resource+)>
 <!ELEMENT resource (id, resource-type, description?)>

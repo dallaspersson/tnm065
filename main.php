@@ -27,175 +27,90 @@ class TimeSlot
 	
 	public function shortcode()
 	{
-		$user = new TS_User($GLOBALS['current_user']);
-		$return = '<p>You are '.$user->getName().' ('.$user->getID().')</p>';
-		if($_GET['action'] == 'book')
-		{			
-			$booking = new TS_Booking($_GET['uid'], $_GET['resource'], $_GET['timestamp'], 86400);
-			
-			if($_GET['uid'] != 0 && $booking->save())
-				$return .= '<p>Din bokning genomfördes!</p>';
-			else
-				$return .= '<p>Din bokning misslyckades...</p>';
-		}
-		else if($_GET['action'] == 'unbook')
-		{
-			if(TS_Booking::delete($_GET['booking_id']))
-				$return .= '<p>Din avbokning lyckades!</p>';
-			else
-				$return .= '<p>Din avbokning misslyckades...</p>';
-		}
-		else
-		{
-			$resources = TS_Resource::getResources();
-			$return = $return.'<ul>';
-			
-			foreach($resources as $resource)
-			{
-				$return = $return.'<li><h3>'.$resource->getName().' ('.$resource->getID().')</h3>';
-				$return = $return.'<ul>';
-				
-				$schedule = $resource->getSchedule();
-				$bookings = $resource->getBookings();
+		// Create an XML document with the Timeslot DTD
+		$implementation = new DOMImplementation();
+		$dtd = $implementation->createDocumentType('timeslot', '', plugin_dir_path(__FILE__) . 'timeslot.dtd');
+		$xml = $implementation->createDocument('','',$dtd);
 
+		$timeslot_element = $xml->createElement("timeslot");
+		$xml->appendChild($timeslot_element);
 
-
-/* ##########  DETTA ÄR OTROLIG FULKOD FÖR ATT VISA KALENDERN - MÅSTE ÄNDRAS!!! */			
-/* CALENDAR CODE START */
-				
-				$month = 10;
-				$year = 2011;
-				
-				/* draw table */
-				$calendar = '<table cellpadding="0" cellspacing="0" class="calendar">';
-				
-				/* table headings */
-				$headings = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
-				$calendar.= '<tr class="calendar-row"><td class="calendar-day-head">'.implode('</td><td class="calendar-day-head">',$headings).'</td></tr>';
-				
-				/* days and weeks vars now ... */
-				$running_day = date('w',mktime(0,0,0,$month,1,$year));
-				$days_in_month = date('t',mktime(0,0,0,$month,1,$year));
-				$days_in_this_week = 1;
-				$day_counter = 0;
-				$dates_array = array();
-				
-				/* row for week one */
-				$calendar.= '<tr class="calendar-row">';
-				
-				/* print "blank" days until the first of the current week */
-				for($x = 0; $x < $running_day; $x++):
-				  $calendar.= '<td class="calendar-day-np">&nbsp;</td>';
-				  $days_in_this_week++;
-				endfor;
-				
-				/* keep going with days.... */
-				for($list_day = 1; $list_day <= $days_in_month; $list_day++):
-					$available = $schedule->getAvailability(mktime(0,0,0,$month,$list_day,$year));
-				    	
-					$calendar.= '<td class="calendar-day'.($available ? ' available' : ' unavailable').'">';
-					
-					/* add in the day number */
-					$calendar.= '<div class="day-number">'.$list_day.'</div>';
-				
-	/** QUERY THE DATABASE FOR AN ENTRY FOR THIS DAY !!  IF MATCHES FOUND, PRINT THEM !! **/
-					if($available)
-					{
-						$booked = false;
-						
-						foreach($bookings as $booking)
-							if($booking->isBooked(mktime(0,0,0,$month,$list_day,$year)))
-							{
-								$booked = $booking;
-								break;
-							}
-						
-						if($booked)
-							if($booked->getUserID() == $user->getID())
-								$calendar.= '<p><a href="'.curPageURL().'?action=unbook&booking_id='.$booked->getID().'">UNBOOK</a></p>';
-							else
-								$calendar.= '<p>BOOKED</p>';
-						else
-							$calendar.= '<p><a href="'.curPageURL().'?action=book&uid='.$user->getID().'&timestamp='.mktime(0,0,0,$month,$list_day,$year).'&resource='.$resource->getID().'">BOOK</a></p>';
-					}
-					else
-						$calendar.= '<p>&nbsp;</p>';
-				      
-					$calendar.= '</td>';
-					if($running_day == 6):
-						$calendar.= '</tr>';
-						if(($day_counter+1) != $days_in_month):
-							$calendar.= '<tr class="calendar-row">';
-						endif;
-						$running_day = -1;
-						$days_in_this_week = 0;
-					endif;
-					$days_in_this_week++; $running_day++; $day_counter++;
-				endfor;
-				
-				/* finish the rest of the days in the week */
-				if($days_in_this_week < 8):
-					for($x = 1; $x <= (8 - $days_in_this_week); $x++):
-						$calendar.= '<td class="calendar-day-np">&nbsp;</td>';
-					endfor;
-				endif;
-				
-				/* final row */
-				$calendar.= '</tr>';
-				
-				/* end the table */
-				$calendar.= '</table>';
-				
-				// add table code to return
-				$return = $return.$calendar;
-				
-/* /#################### CALENDAR CODE END */
-				
-				$return = $return.'</ul></li>';
-			}
-			$return = $return.'</ul>';
-		}
+/**
+ *	IN PROGRESS STARTED CODE BELOW - Move up when finished
+ */
+ 		/**
+ 		 *	Get resources from database and put them in XML document.
+ 		 */
+ 		
+ 		// Retrieve all resources from database
+	 	$resources = TS_Resource::getResources();
 		
+		// Create a "resources" element to contain all resources
+		$resources_element = $xml->createElement("resources");
+		// Append the "resources" element to document root element
+		$timeslot_element->appendChild($resources_element);
+		
+		
+		foreach($resources as $resource)
+		{
+			// Create a "resource" element to contain all info about a resource
+			$resource_element = $xml->createElement("resource");
+			// Append the "resource" element to the "resources element
+			$resources_element->appendChild($resource_element);
+			
+			// Create and append data elements to the "resource" element
+			$resource_element->appendChild( $xml->createElement("id", $resource->getID()) );
+			$resource_element->appendChild( $xml->createElement("resource-type", $resource->getName()) );
+			$resource_element->appendChild( $xml->createElement("description", $resource->getName()) );
+		}
+
+		/* ---------------------------------------- */
+		
+		/**
+		 *	This should retrieve all users from the database.
+		 *
+		 *	<!ELEMENT user (firstname, lastname, e-mail, avatar?, id, role, user-allowances?)>
+		 */
+		
+		$user = new TS_User($GLOBALS['current_user']);
+		
+		$users_element = $xml->createElement("users");
+		$timeslot_element->appendChild($users_element);
+		
+		$user_element = $xml->createElement("user");
+		$users_element->appendChild($user_element);
+		
+		$user_element->appendChild( $xml->createElement("firstname", $user->getName()) );
+		$user_element->appendChild( $xml->createElement("lastname", $user->getName()) );
+		$user_element->appendChild( $xml->createElement("e-mail", "* marcus.stenbeck@gmail.com *") );
+		$user_element->appendChild( $xml->createElement("id", $user->getID()) );
+		$user_element->appendChild( $xml->createElement("role", "* The Bry Man *") );
+
+		/* ---------------------------------------- */
 		
 		
 /**
- *	UNFINISHED CODE BELOW - Move up when finished
+ *	NOT STARTED CODE BELOW - Move up when in progress
  */
-		$return = '<?xml version="1.0" standalone="no"?>';
-		$return.= '<!DOCTYPE timeslot SYSTEM "' . plugin_dir_path(__FILE__) . 'timeslot.dtd">';
-		$return.= '<timeslot>';
-		$return.= '<resources>';
-		$return.= '<resource>';
-		$return.= '<id/>';
-		$return.= '<resource-type/>';
-		$return.= '<description/>';
-		$return.= '</resource>';
-		$return.= '</resources>';
-
-		$return.= '<users>';
-		$return.= '<user>';
-		$return.= '<firstname>Marcus</firstname>';
-		$return.= '<lastname>Stenbeck</lastname>';
-		$return.= '<e-mail>marcus.stenbeck@gmail.com</e-mail>';
-		$return.= '<avatar/>';
-		$return.= '<id/>';
-		$return.= '<role/>';
-		$return.= '<user-allowances>';
-		$return.= '<user-allowance>';
-		$return.= '<allowance-id/>';
-		$return.= '<time-used period-id="baize"/>';
-		$return.= '</user-allowance>';
-		$return.= '</user-allowances>';
-		$return.= '</user>';
-		$return.= '</users>';
-	
+		
+		/**
+		 *	This should retrieve all slots from the database.
+		 *	A slot is a time-range which specifies availability.
+		 *
+		 *	<!ELEMENT slots (slot*)>
+		 *	<!ELEMENT slot (id,time-range)>
+		 */
+		
 		$return.= '<slots>';
 		$return.= '<slot>';
 		$return.= '<id/>';
 		$return.= '<time-range start="" end="" status=""/>';
 		$return.= '</slot>';
 		$return.= '</slots>';
-	
+
+		/* ---------------------------------------- */
+		
+		/*
 		$return.= '<bookings>';
 		$return.= '<booking>';
 		$return.= '<booked-slots>';
@@ -211,45 +126,36 @@ class TimeSlot
 		$return.= '<resource-type/>';
 		$return.= '<time-per-period/>';
 		$return.= '<max-booking-length/>';
-			
 		$return.= '<periods>';
 		$return.= '<period id="baize" start="" end=""/>';
 		$return.= '</periods>';
 		$return.= '</allowance>';
 		$return.= '</allowances>';
-		$return.= '</timeslot>';
+		*/
 		
-		$xmlstr = $return;
+/**
+ *	End of function below
+ */
+ 
+		// Save XML to file for review
+		$xml->save(plugin_dir_path(__FILE__)."timeslot.xml");
 		
-		// Do processing!!!
-		$xml = new DOMDocument;
-		$xml->loadXML($xmlstr);
-		
-		$xsl = new DOMDocument;
+		// Import XSL document
+		$xsl = new DOMDocument();
 		$xsl->load(plugin_dir_path(__FILE__)."timeslot-html-screen.xsl");
 		
-		$parser = new XSLTProcessor;
+		// Create an XSLT processor and process the XML document
+		$parser = new XSLTProcessor();
 		$parser->importStyleSheet($xsl);
+		$return = $parser->transformToXML($xml);
 		
-		$html = $parser->transformToXML($xml);
+		// Validate XML file against it's DTD
+		echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
 		
-		echo $xml->validate() ? "Validated!" : "Not validated. Let sadness commence.";
-		
-		return $html;
+		return $return;
 	}
 }
 
-function curPageURL() {
- $pageURL = 'http';
- if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
- $pageURL .= "://";
- if ($_SERVER["SERVER_PORT"] != "80") {
-  $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
- } else {
-  $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
- }
- return $pageURL;
-}
-
+// Instantiate a TimeSlot object in order to register shorthand code
 $timeslot = new TimeSlot();
 ?>
