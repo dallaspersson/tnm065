@@ -20,9 +20,20 @@ include 'TS_CompositeSchedule.php';
 
 class TimeSlot
 {
+	// Variables
+	private $plugin_url;
+	
 	public function __construct()
 	{
 		add_shortcode('timeslot', array($this, 'shortcode'));
+		$this->plugin_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+	}
+
+	public function enqueue_my_styles()
+	{	
+		// Link css
+		$tmp_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+		wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
 	}
 	
 	public function shortcode()
@@ -155,6 +166,8 @@ class TimeSlot
 		return $return;
 	}
 }
+
+add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
 
 // Instantiate a TimeSlot object in order to register shorthand code
 $timeslot = new TimeSlot();
