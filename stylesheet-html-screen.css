@@ -1,4 +1,39 @@
 .resources {
-	color: blue;
-	background-color: red;
+	border:solid 2px #000000;
+	padding: 0px 0px 0px 0px;
+	width: 20%;
+	float:left;
+}
+
+.calander-content {
+	padding: 0px 0px 0px 0px;
+	width: 79%;
+	float:right;
+}
+
+.calander {
+	border:solid 2px #000000;
+	padding: 0px 0px 0px 0px;
+	float:left;
+	width:65%;
+}
+
+.bookings {
+	border:solid 2px #000000;
+	padding: 0px 0px 0px 0px;
+	float:right;
+	width:34%;
+}
+
+p {
+	margin-top:0px;
+	margin-bottom:0px;
+}
+
+.singular .entry-header,
+.singular .entry-content,
+.singular footer.entry-meta,
+.singular #comments-title {
+	margin: 0 auto;
+	width: 100%;
 }

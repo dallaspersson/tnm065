@@ -2,11 +2,25 @@
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
+				<h2>resources</h2>
 				<xsl:apply-templates select="resources" />
 			</div>
-			<div class="calander">
-			</div>
-			<div class="bookings">
+			<div class="calander-content">
+
+				<div class="calander">
+
+					<!-- Current month and year -->
+					<h1>december 2011</h1>
+
+					<!-- Current status -->
+					<em>36 av 120 timmar bokade</em>
+
+				</div>
+
+				<div class="bookings">
+					<h2>bookings</h2>
+				</div>
+
 			</div>
 		</div>
 	</xsl:template>
@@ -17,9 +31,7 @@
 
 	<xsl:template match="resources">
 		<xsl:for-each select="resource">
-			<ul>
-		      <li><xsl:value-of select="resource-type"/></li>
-		    </ul>
+	      <p><xsl:value-of select="resource-type"/></p>
 	    </xsl:for-each>
   	</xsl:template>
 
