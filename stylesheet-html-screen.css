@@ -1,32 +1,43 @@
-.resources {
+.resources,
+.calander-content {
 	border:solid 2px #000000;
 	padding: 0px 0px 0px 0px;
-	width: 20%;
+}
+
+.resources {
+	width: 19%;
+	max-width: 19%;
 	float:left;
+	border:solid 2px #000000;
+	padding: 0px 4px 0px 4px;
+	height: 100%;
 }
 
 .calander-content {
-	padding: 0px 0px 0px 0px;
-	width: 79%;
+	width: 78%;
+	max-width: 78%;
 	float:right;
+	padding: 0px 4px 0px 4px;
+	height: 100%;
 }
 
 .calander {
-	border:solid 2px #000000;
-	padding: 0px 0px 0px 0px;
 	float:left;
 	width:65%;
 }
 
 .bookings {
-	border:solid 2px #000000;
-	padding: 0px 0px 0px 0px;
 	float:right;
 	width:34%;
 }
 
 p {
 	margin-top:0px;
+	margin-bottom:0px;
+}
+
+h1.big-date{
+	font-size:40px;
 	margin-bottom:0px;
 }
 

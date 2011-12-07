@@ -10,7 +10,7 @@
 				<div class="calander">
 
 					<!-- Current month and year -->
-					<h1>december 2011</h1>
+					<h1 class="big-date">december 2011</h1>
 
 					<!-- Current status -->
 					<em>36 av 120 timmar bokade</em>
