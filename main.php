@@ -20,16 +20,23 @@ include 'TS_CompositeSchedule.php';
 
 class TimeSlot
 {
+
+	private $plugin_dir;
+	private $plugin_url;
+	
 	public function __construct()
 	{
 		add_shortcode('timeslot', array($this, 'shortcode'));
+		$this->plugin_dir = WP_PLUGIN_DIR .'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+		$this->plugin_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 	}
 	
 	public function shortcode()
 	{
+	
 		// Create an XML document with the Timeslot DTD
 		$implementation = new DOMImplementation();
-		$dtd = $implementation->createDocumentType('timeslot', '', plugin_dir_path(__FILE__) . 'timeslot.dtd');
+		$dtd = $implementation->createDocumentType('timeslot', '', $this->plugin_dir . 'timeslot.dtd');
 		$xml = $implementation->createDocument('','',$dtd);
 
 		$timeslot_element = $xml->createElement("timeslot");
@@ -138,11 +145,11 @@ class TimeSlot
  */
  
 		// Save XML to file for review
-		$xml->save(plugin_dir_path(__FILE__)."timeslot.xml");
+		$xml->save($this->plugin_dir."timeslot.xml");
 		
 		// Import XSL document
 		$xsl = new DOMDocument();
-		$xsl->load(plugin_dir_path(__FILE__)."timeslot-html-screen.xsl");
+		$xsl->load($this->plugin_dir."timeslot-html-screen.xsl");
 		
 		// Create an XSLT processor and process the XML document
 		$parser = new XSLTProcessor();
@@ -152,9 +159,44 @@ class TimeSlot
 		// Validate XML file against it's DTD
 		echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
 		
+		
+/*
+ *	Temporary form for creating bookings
+ */
+		 
+		 $form = '
+		 			<form method="post">
+		 				<input type="hidden" value="booking"/>
+		 			
+		 				<label for="booking-start-time">Start Time</label>
+						<input type="datetime" id="booking-start-time" name="booking-start-time"/>
+						
+						<label for="booking-end-time">End Time</label>
+						<input type="datetime" id="booking-end-time" name="booking-end-time"/>
+						
+						<input type="submit" value="Book"/>
+					</form>
+				';
+		
+		if(isset($_POST['booking-start-time']) && isset($_POST['booking-end-time']))
+		{
+			$startTime = $_POST['booking-start-time'];
+			$duration =  strtotime($_POST['booking-end-time']) - strtotime($_POST['booking-start-time']);
+			
+			$booking = new TS_Booking($startTime, $duration);
+			
+			$booking->save() or die('save');
+		}
+		
+		$return .= $form;
+		
 		return $return;
 	}
 }
+
+// Ladda jQuery
+// Bortkommenterad för att den inte används.
+//wp_enqueue_script( 'jquery' );
 
 // Instantiate a TimeSlot object in order to register shorthand code
 $timeslot = new TimeSlot();
