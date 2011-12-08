@@ -89,3 +89,43 @@ ALTER TABLE `timeslot_bookings`
 	
 ALTER TABLE `timeslot_bookings`
 	DROP COLUMN `resource_id`;
+	
+-- ---------------------------------------------------------------
+
+--
+-- Change name of timeslot_bookings to timeslot_slots
+--
+ALTER TABLE `wordpress`.`timeslot_bookings` RENAME TO  `wordpress`.`timeslot_slots` ;
+
+drop table `wordpress`.`timeslot_resources_schedule`;
+
+-- ---------------------------------------------------------------
+
+--
+-- Create new table, timeslot_bookings, containing bookings
+--
+CREATE TABLE IF NOT EXISTS `timeslot_bookings` (
+  `id` int(11) NOT NULL auto_increment,
+  `slots` VARCHAR(1024) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `resource_id` int(11) NOT NULL,
+  PRIMARY KEY  (`id`),
+  
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+ALTER TABLE timeslot_bookings
+ADD COLUMN resource_id int(11),
+ADD CONSTRAINT FK_timeslot_bookings
+FOREIGN KEY (resource_id) REFERENCES timeslot_resources(id)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+ALTER TABLE wordpress.timeslot_bookings CHANGE slots slot_id int(11);
+
+ALTER TABLE timeslot_bookings
+ADD CONSTRAINT FK_timeslot_bookings_slot_id
+FOREIGN KEY (slot_id) REFERENCES timeslot_slots(id)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+ALTER TABLE `wordpress`.`timeslot_bookings` DROP FOREIGN KEY `resource_id` ;

@@ -7,7 +7,7 @@
 <!ELEMENT description (#PCDATA)>
 
 <!ELEMENT bookings (booking+)>
-<!ELEMENT booking (booked-slots, resource-id, user-id)>
+<!ELEMENT booking (id, booked-slots, resource-id, user-id)>
 <!ELEMENT user-id (#PCDATA)>
 
 <!ELEMENT slots (slot*)>

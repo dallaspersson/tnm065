@@ -51,6 +51,9 @@ class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 		if(empty($args))
 			return false;
 		
+		
+		$GLOBALS['wpdb']->show_errors();
+		
 		if($GLOBALS['wpdb']->insert($db_table, $args))
 			return true;
 		

@@ -15,6 +15,7 @@ Why are other booking systems shit or crazy expensive?
 include 'TS_WordpressDatabaseConnector.php';
 include 'TS_Resource.php';
 include 'TS_User.php';
+include 'TS_Slot.php';
 include 'TS_Booking.php';
 include 'TS_CompositeSchedule.php';
 
@@ -87,7 +88,7 @@ class TimeSlot
 		 *	<!ELEMENT user (firstname, lastname, e-mail, avatar?, id, role, user-allowances?)>
 		 */
 		
-		$user = new TS_User($GLOBALS['current_user']);
+		$user = new TS_User(wp_get_current_user());
 		
 		$users_element = $xml->createElement("users");
 		$timeslot_element->appendChild($users_element);
@@ -136,7 +137,6 @@ class TimeSlot
 		// Append the "bookings" element to document root element
 		$timeslot_element->appendChild($bookings_element);
 		
-		
 		foreach($bookings as $booking)
 		{
 			// Create a "booking" element to contain all info about a resource
@@ -145,17 +145,13 @@ class TimeSlot
 			$bookings_element->appendChild($booking_element);
 			
 			// -- Create and append data elements to the "booking" element --
+			$booking_element->appendChild( $xml->createElement("id", $booking->getID()) );
 			
 			$booked_slots_element = $xml->createElement("booked-slots");
-			$booking_element->appendChild($booked_slots_element);
+			$booking_element->appendChild($booked_slots_element);	
+			$booked_slots_element->appendChild( $xml->createElement("slot-id", $booking->getSlots()) );
 			
-			// Get slots that are a part of the booking
-			$slots = $booking->getSlots();
-			
-			foreach($slots as $slot)
-				$booked_slots_element->appendChild( $xml->createElement("slot-id", $slot) );
-			
-			$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()->getID()) );
+			$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()) );
 			$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
 		}
 /*
@@ -212,18 +208,73 @@ class TimeSlot
 		
 		
 /*
- *	Temporary form handling for creating bookings
+ *	Handle states (… or views, if you wish.)
  */
-		
-		if(isset($_POST['booking-start-time']) && isset($_POST['booking-end-time']))
+		if(isset($_GET['booking']))
 		{
-			$startTime = $_POST['booking-start-time'];
-			$duration =  strtotime($_POST['booking-end-time']) - strtotime($_POST['booking-start-time']);
+			/*
+			 *	Handle booking states
+			 */
 			
-			$booking = new TS_Booking($startTime, $duration);
-			
-			$booking->save() or die('save');
+			// Handle viewing bookings
+			if(isset($_GET['add']))
+			{
+				if(isset($_POST['slot_id']) && isset($_POST['resource_id']) && isset($_POST['user_id']))
+				{
+					$booking = new TS_Booking($_POST['slot_id'], $_POST['user_id'], $_POST['resource_id']);
+					
+					$booking->save() or die('save');
+				}
+				
+				$form = '<form method="post">
+				
+		 					<select id="slots" name="slot_id">';
+				/// slots
+		 		$slots = TS_Slot::getSlots();
+		 		
+		 		foreach($slots as $slot)
+		 			$form .= '<option>' . $slot->getID() . '</option>';
+					
+				$form .=	'</select>';
+				
+				
+				//////
+				$form .=	'<select id="resources" name="resource_id">';
+
+		 		$resources = TS_Resource::getResources();
+		 		
+		 		foreach($resources as $resource)
+		 			$form .= '<option value="' . $resource->getID() . '">' . $resource->getName() . '</option>';
+					
+				$form .=	'</select>';
+				////////
+				
+				$form .= '		<input name="user_id" type="hidden" value="' . $user->getID() . '"/>
+								<input type="text" disabled="disabled" value="' . ( $user->getName() == '' ? 'unregistered' : $user->getName() ) . '"/>';
+				
+				
+				$form .= '		<input type="submit" value="Book"/>
+							</form>';
+			}
+			else if(isset($_GET['remove']))
+			{
+				echo '<script type="text/javascript">alert("remove")</script>';
+			}
+			else if(isset($_GET['edit']))
+			{
+				echo '<script type="text/javascript">alert("edit")</script>';
+			}
+			else
+			{
+				echo '<script type="text/javascript">alert("view (default)")</script>';
+			}
 		}
+		else
+		{
+			// Standard state
+		}
+		
+		$return .= $form;
 		
 		return $return;
 	}

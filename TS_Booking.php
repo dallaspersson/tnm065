@@ -3,37 +3,33 @@ include_once 'TS_WordpressDatabaseConnector.php';
 
 class TS_Booking
 {
-	// These are not implemented
-	
-	//protected $resource;
-	//protected $user;
 	
 	// These are implemented
 	protected $id;
-	protected $start;
-	protected $duration;
+	protected $slots;
+	protected $user_id;
+	protected $resource_id;
 	
 	//public function __construct($user, $resource, $start, $duration, $id = null)
-	public function __construct($start, $duration, $id = null)
+	public function __construct($slots, $user_id, $resource_id, $id = null)
 	{
 		$this->id = $id;
-		//$this->user = $user;
-		//$this->resource = $resource;
-		$this->start = $start;
-		$this->duration = $duration;
+		$this->slots = $slots;
+		$this->user_id = $user_id;
+		$this->resource_id = $resource_id;
 	}
 	
 	public static function getBookings()
 	{
-		$cols = array("start", "duration");
+		$cols = array("id", "slot_id", "user_id", "resource_id");
 		
 		$bookings = TS_WordpressDatabaseConnector::select("timeslot_bookings", $cols);
 		
 		$return = array();
 		
 		foreach($bookings as $booking)
-		{
-			$return = array_merge($return, array(new TS_Booking($result->start, $result->duration)));
+		{	
+			$return = array_merge($return, array(new TS_Booking($booking->slot_id, $booking->user_id, $booking->resource_id, $booking->id)));
 		}
 		
 		return $return;
@@ -42,34 +38,28 @@ class TS_Booking
 	// FUNCTION STUB
 	public function getResource()
 	{
-		$resource = new TS_Resource(-1, "* DUMMY RESOURCE *");
-		
-		return $resource;
+		return $this->resource;
 	}
 	
 	// FUNCTION STUB
 	public function getUser()
 	{
-		$user = "user";
-		
-		return $user;
+		return $this->user;
 	}
 	
 	public function getSlots()
 	{
-		$slots = array("slot1", "slot2", "slot3");
-		
-		return $slots;
+		return $this->slots;
 	}
 	
 	public function save()
 	{
-		//$args = array('user_id' => $this->user, 'resource_id' => $this->resource, 'start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
-		$args = array('start' => date("Y-m-d H:i:s", strtotime($this->start)), 'duration' => $this->duration);
+		// Build argument array for database connector
+		$args = array('slot_id' => $this->slots, 'user_id' => $this->user_id, 'resource_id' => $this->resource_id);
 		
 		if(TS_WordpressDatabaseConnector::insert("timeslot_bookings", $args))
 			return true;
-		
+			
 		return false;
 	}
 	
