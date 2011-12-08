@@ -2,7 +2,7 @@
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
-				<h2>resources</h2>
+				<h2>Resources</h2>
 				<xsl:apply-templates select="resources" />
 			</div>
 			<div class="calander-content">
@@ -10,21 +10,27 @@
 				<div class="calander">
 
 					<!-- Current month and year -->
-					<h1 class="big-date">december 2011</h1>
+					<h1 class="big-date">December 2011</h1>
 
 					<!-- Current status -->
-					<em>current status?</em>
+					<em>Current status?</em>
 
 					<!-- Input booking -->
-					<form action="form_action.asp" method="get">
-					  start time: <input type="text" name="stime" /><br />
-					  end time: <input type="text" name="etime" /><br />
-					  <input type="submit" value="Submit" />
+					<form method="post">
+		 				<input type="hidden" value="booking"/>
+		 			
+		 				<label for="booking-start-time">Start Time</label>
+						<input type="datetime" id="booking-start-time" name="booking-start-time"/><br />
+						
+						<label for="booking-end-time">End Time</label>
+						<input type="datetime" id="booking-end-time" name="booking-end-time"/><br />
+						
+						<input type="submit" value="Book"/>
 					</form>
 				</div>
 
 				<div class="bookings">
-					<h2>bookings</h2>
+					<h2>Bookings</h2>
 				</div>
 
 			</div>
