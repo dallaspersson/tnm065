@@ -13,6 +13,10 @@
 	height: 100%;
 }
 
+.current-resource {
+	color: black;
+}
+
 .not-current-resource {
 	color: gray;
 }
@@ -38,6 +42,17 @@
 p {
 	margin-top:0px;
 	margin-bottom:0px;
+}
+
+.tight {
+	line-height:80%;
+	width: 70%;
+	max-width: 70%;
+	float:left;
+}
+
+.fat-bottom {
+	margin-bottom:12px;
 }
 
 em {

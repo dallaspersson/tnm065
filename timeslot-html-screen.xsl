@@ -27,10 +27,14 @@
 						
 						<input type="submit" value="Book"/>
 					</form>
+
+					
 				</div>
 
 				<div class="bookings">
 					<h2>Bookings</h2>
+					<!-- List bookings -->
+					<xsl:apply-templates select="bookings" />
 				</div>
 
 			</div>
@@ -45,10 +49,22 @@
 		<xsl:for-each select="resource">
 			<xsl:choose>
 				<xsl:when test="position() = 1">
-		      		<p class="current-resource"><xsl:value-of select="resource-type"/></p>
+					<xsl:element name="a">
+					  	<xsl:attribute name="href">
+					  		<!-- Link to correct schedual-->
+					  		<!--<xsl:value-of select="link" />-->
+					  	</xsl:attribute>
+		      			<p class="current-resource"><xsl:value-of select="resource-type"/></p>
+	      			</xsl:element>
 		      	</xsl:when>
 		      	<xsl:otherwise>
-		      		<p class="not-current-resource"><xsl:value-of select="resource-type"/></p>
+		      		<xsl:element name="a">
+					  	<xsl:attribute name="href">
+					  		<!-- Link to correct schedual-->
+					  		<!--<xsl:value-of select="link" />-->
+					  	</xsl:attribute>
+		      			<p class="not-current-resource"><xsl:value-of select="resource-type"/></p>
+	      			</xsl:element>
 		      	</xsl:otherwise>
 	      	</xsl:choose>
 	    </xsl:for-each>
@@ -57,4 +73,34 @@
   	<xsl:template match="resource">
 		<xsl:apply-templates />
   	</xsl:template>
+
+  	<xsl:template match="bookings">
+  		<!-- Loop through all bookings -->
+		<xsl:for-each select="booking">
+			<div class="fat-bottom">
+				<div class="tight">
+					<xsl:apply-templates select="booked-slots"/><br />
+
+					<!-- Print user --> 
+					<em><xsl:value-of select="user-id" /></em>
+
+					
+				</div>
+
+				<div class="booking-button-right">
+					<!-- Remove button -->
+					<input TYPE="button" onClick="#" value="Remove"/>
+				</div>
+
+			</div>
+		</xsl:for-each>
+  	</xsl:template>
+
+  	<xsl:template match="booked-slots">
+		<xsl:for-each select="slot-id">
+			<xsl:apply-templates />
+		</xsl:for-each>
+  	</xsl:template>
+
+  	
 </xsl:stylesheet>
