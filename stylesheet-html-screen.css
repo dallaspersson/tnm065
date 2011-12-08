@@ -36,6 +36,10 @@ p {
 	margin-bottom:0px;
 }
 
+em {
+	color: gray;
+}
+
 h1.big-date{
 	font-size:40px;
 	margin-bottom:0px;
