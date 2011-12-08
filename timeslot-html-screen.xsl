@@ -82,7 +82,7 @@
 					<xsl:apply-templates select="booked-slots"/><br />
 
 					<!-- Print user --> 
-					<em>
+					<em class="comment-text">
 						<xsl:for-each select="/timeslot/users/user">
 							<xsl:choose>
 								<xsl:when test="id = user-id">

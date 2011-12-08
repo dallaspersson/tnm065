@@ -34,6 +34,10 @@
 	width:65%;
 }
 
+.comment-text {
+	font-size:12px;
+}
+
 .bookings {
 	float:right;
 	width:34%;
