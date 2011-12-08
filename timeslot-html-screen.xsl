@@ -43,7 +43,14 @@
 
 	<xsl:template match="resources">
 		<xsl:for-each select="resource">
-	      <p><xsl:value-of select="resource-type"/></p>
+			<xsl:choose>
+				<xsl:when test="position() = 1">
+		      		<p class="current-resource"><xsl:value-of select="resource-type"/></p>
+		      	</xsl:when>
+		      	<xsl:otherwise>
+		      		<p class="not-current-resource"><xsl:value-of select="resource-type"/></p>
+		      	</xsl:otherwise>
+	      	</xsl:choose>
 	    </xsl:for-each>
   	</xsl:template>
 

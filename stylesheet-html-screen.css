@@ -13,6 +13,10 @@
 	height: 100%;
 }
 
+.not-current-resource {
+	color: gray;
+}
+
 .calander-content {
 	width: 78%;
 	max-width: 78%;
