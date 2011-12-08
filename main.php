@@ -95,11 +95,6 @@ class TimeSlot
 
 		/* ---------------------------------------- */
 		
-		
-/**
- *	NOT STARTED CODE BELOW - Move up when in progress
- */
-		
 		/**
 		 *	This should retrieve all slots from the database.
 		 *	A slot is a time-range which specifies availability.
@@ -117,16 +112,64 @@ class TimeSlot
 
 		/* ---------------------------------------- */
 		
-		/*
-		$return.= '<bookings>';
-		$return.= '<booking>';
-		$return.= '<booked-slots>';
-		$return.= '<slot-id/>';
-		$return.= '</booked-slots>';
-		$return.= '<resource-id/>';
-		$return.= '<user-id/>';
-		$return.= '</booking>';
+		/**
+		 *	This should retrieve all bookings from the database.
+		 *
+		 *	<!ELEMENT bookings (booking+)>
+		 *	<!ELEMENT booking (booked-slots, resource-id, user-id)>
+		 *	<!ELEMENT booked-slots (slot-id)>
+		 *
+		 */
+		
+		$bookings = TS_Booking::getBookings();
+		
+		// Create a "bookings" element to contain all resources
+		$bookings_element = $xml->createElement("bookings");
+		// Append the "bookings" element to document root element
+		$timeslot_element->appendChild($bookings_element);
+		
+		
+		foreach($bookings as $booking)
+		{
+			// Create a "booking" element to contain all info about a resource
+			$booking_element = $xml->createElement("booking");
+			// Append the "booking" element to the "resources element
+			$bookings_element->appendChild($booking_element);
+			
+			// -- Create and append data elements to the "booking" element --
+			
+			$booked_slots_element = $xml->createElement("booked-slots");
+			$booking_element->appendChild($booked_slots_element);
+			
+			// Get slots that are a part of the booking
+			$slots = $booking->getSlots();
+			
+			foreach($slots as $slot)
+				$booked_slots_element->appendChild( $xml->createElement("slot-id", $slot) );
+			
+			$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()->getID()) );
+			$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
+		}
+/*
+			$return.= '<booking>';
+				$return.= '<booked-slots>';
+					$return.= '<slot-id/>';
+				$return.= '</booked-slots>';
+				$return.= '<resource-id/>';
+				$return.= '<user-id/>';
+			$return.= '</booking>';
 		$return.= '</bookings>';
+*/
+		
+		/* ---------------------------------------- */	
+/**
+ *	NOT STARTED CODE BELOW - Move up when in progress
+ */
+		
+		
+		
+		/*
+		
 
 		$return.= '<allowances>';
 		$return.= '<allowance>';

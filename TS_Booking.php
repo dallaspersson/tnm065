@@ -23,6 +23,45 @@ class TS_Booking
 		$this->duration = $duration;
 	}
 	
+	public static function getBookings()
+	{
+		$cols = array("start", "duration");
+		
+		$bookings = TS_WordpressDatabaseConnector::select("timeslot_bookings", $cols);
+		
+		$return = array();
+		
+		foreach($bookings as $booking)
+		{
+			$return = array_merge($return, array(new TS_Booking($result->start, $result->duration)));
+		}
+		
+		return $return;
+	}
+	
+	// FUNCTION STUB
+	public function getResource()
+	{
+		$resource = new TS_Resource(-1, "* DUMMY RESOURCE *");
+		
+		return $resource;
+	}
+	
+	// FUNCTION STUB
+	public function getUser()
+	{
+		$user = "user";
+		
+		return $user;
+	}
+	
+	public function getSlots()
+	{
+		$slots = array("slot1", "slot2", "slot3");
+		
+		return $slots;
+	}
+	
 	public function save()
 	{
 		//$args = array('user_id' => $this->user, 'resource_id' => $this->resource, 'start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
