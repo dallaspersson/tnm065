@@ -82,7 +82,20 @@
 					<xsl:apply-templates select="booked-slots"/><br />
 
 					<!-- Print user --> 
-					<em><xsl:value-of select="user-id" /></em>
+					<em>
+						<xsl:for-each select="/timeslot/users/user">
+							<xsl:choose>
+								<xsl:when test="id = user-id">
+									<xsl:value-of select="user-id" />
+								</xsl:when>
+								<xsl:otherwise>
+									No user found
+								</xsl:otherwise>
+							</xsl:choose>
+							<!--<xsl:value-of select="user-id" />
+							<xsl:value-of select="id" />-->
+						</xsl:for-each>
+					</em>
 
 					
 				</div>
