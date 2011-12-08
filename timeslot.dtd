@@ -13,7 +13,7 @@
 <!ELEMENT slots (slot*)>
 <!ELEMENT slot (id,time-range)>
 
-<!ELEMENT booked-slots (slot-id)>
+<!ELEMENT booked-slots (slot-id+)>
 <!ELEMENT slot-id (#PCDATA)>
 
 <!ELEMENT users (user+)>

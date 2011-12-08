@@ -3,7 +3,6 @@ include_once 'TS_DatabaseConnector.php';
 
 class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 {
-	
 	public function __construct()
 	{
 		print 'TS_WordpressDatabaseConnector::__construct()';
@@ -19,14 +18,43 @@ class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 		print 'TS_WordpressDatabaseConnector::disconnect()';
 	}
 	
-	public function select()
+	public function select($db_table, $cols)
 	{
-		print 'TS_WordpressDatabaseConnector::select()';
+		
+		// Make sure the database table name is set
+		if(empty($db_table))
+			return false;
+		
+		// Make sure that there are arguments
+		if(empty($cols))
+			return false;
+		
+		// Build query string 	
+		$query = "SELECT id";
+		foreach($cols as $col)
+			$query .= ", " . $col;
+		$query .= " FROM " . $db_table;
+		
+		// Fetch data
+		$results = $GLOBALS['wpdb']->get_results($query);
+		
+		return $results;
 	}
 	
-	public function insert()
+	public static function insert($db_table, $args)
 	{
-		print 'TS_WordpressDatabaseConnector::insert()';
+		// Make sure the database table name is set
+		if(empty($db_table))
+			return false;
+		
+		// Make sure that there are arguments
+		if(empty($args))
+			return false;
+		
+		if($GLOBALS['wpdb']->insert($db_table, $args))
+			return true;
+		
+		return false;
 	}
 	
 	public function delete()

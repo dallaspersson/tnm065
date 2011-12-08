@@ -26,17 +26,10 @@ CREATE TABLE IF NOT EXISTS `timeslot_bookings` (
   `start` datetime NOT NULL,
   `duration` bigint(20) NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `resource_id` (`resource_id`)
+  KEY `resource_id` (`resource_id`),
+  CONSTRAINT `timeslot_bookings_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `timeslot_resources` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
 
---
--- Dumping data for table `timeslot_bookings`
---
-
-INSERT INTO `timeslot_bookings` (`id`, `user_id`, `resource_id`, `start`, `duration`) VALUES
-(4, 1, 1, '2011-10-24 00:00:00', 86400),
-(7, 2, 1, '2011-10-26 00:00:00', 86400),
-(8, 1, 1, '2011-10-28 00:00:00', 86400);
 
 -- --------------------------------------------------------
 
@@ -50,14 +43,6 @@ CREATE TABLE IF NOT EXISTS `timeslot_resources` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
---
--- Dumping data for table `timeslot_resources`
---
-
-INSERT INTO `timeslot_resources` (`id`, `name`) VALUES
-(1, 'Tvättmaskin'),
-(2, 'Torktumlare');
-
 -- --------------------------------------------------------
 
 --
@@ -68,17 +53,11 @@ CREATE TABLE IF NOT EXISTS `timeslot_resources_schedule` (
   `resource_id` int(11) NOT NULL,
   `schedule_id` int(11) NOT NULL,
   KEY `schedule_id` (`schedule_id`),
-  KEY `resource_id` (`resource_id`)
+  KEY `resource_id` (`resource_id`),
+  CONSTRAINT `timeslot_resources_schedule_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `timeslot_resources` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `timeslot_resources_schedule_ibfk_2` FOREIGN KEY (`schedule_id`) REFERENCES `timeslot_schedule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `timeslot_resources_schedule`
---
-
-INSERT INTO `timeslot_resources_schedule` (`resource_id`, `schedule_id`) VALUES
-(1, 1),
-(2, 2),
-(1, 2);
 
 -- --------------------------------------------------------
 
@@ -94,27 +73,19 @@ CREATE TABLE IF NOT EXISTS `timeslot_schedule` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
---
--- Dumping data for table `timeslot_schedule`
---
 
-INSERT INTO `timeslot_schedule` (`id`, `start`, `duration`, `repeat`) VALUES
-(1, '2011-10-24', 86400, 2),
-(2, '2011-10-28', 86400, 0);
+-- ---------------------------------------------------------------
 
 --
--- Constraints for dumped tables
+-- Alter `timeslot_bookings` to include only start time and duration
 --
 
---
--- Constraints for table `timeslot_bookings`
---
+
 ALTER TABLE `timeslot_bookings`
-  ADD CONSTRAINT `timeslot_bookings_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `timeslot_resources` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+	DROP COLUMN `user_id`;
 
---
--- Constraints for table `timeslot_resources_schedule`
---
-ALTER TABLE `timeslot_resources_schedule`
-  ADD CONSTRAINT `timeslot_resources_schedule_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `timeslot_resources` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timeslot_resources_schedule_ibfk_2` FOREIGN KEY (`schedule_id`) REFERENCES `timeslot_schedule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `timeslot_bookings`
+	DROP FOREIGN KEY `timeslot_bookings_ibfk_1`;
+	
+ALTER TABLE `timeslot_bookings`
+	DROP COLUMN `resource_id`;

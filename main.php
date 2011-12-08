@@ -21,11 +21,14 @@ include 'TS_CompositeSchedule.php';
 class TimeSlot
 {
 	// Variables
+
+	private $plugin_dir;
 	private $plugin_url;
 	
 	public function __construct()
 	{
 		add_shortcode('timeslot', array($this, 'shortcode'));
+		$this->plugin_dir = WP_PLUGIN_DIR .'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 		$this->plugin_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 	}
 
@@ -38,9 +41,10 @@ class TimeSlot
 	
 	public function shortcode()
 	{
+	
 		// Create an XML document with the Timeslot DTD
 		$implementation = new DOMImplementation();
-		$dtd = $implementation->createDocumentType('timeslot', '', plugin_dir_path(__FILE__) . 'timeslot.dtd');
+		$dtd = $implementation->createDocumentType('timeslot', '', $this->plugin_dir . 'timeslot.dtd');
 		$xml = $implementation->createDocument('','',$dtd);
 
 		$timeslot_element = $xml->createElement("timeslot");
@@ -99,11 +103,6 @@ class TimeSlot
 
 		/* ---------------------------------------- */
 		
-		
-/**
- *	NOT STARTED CODE BELOW - Move up when in progress
- */
-		
 		/**
 		 *	This should retrieve all slots from the database.
 		 *	A slot is a time-range which specifies availability.
@@ -121,16 +120,64 @@ class TimeSlot
 
 		/* ---------------------------------------- */
 		
-		/*
-		$return.= '<bookings>';
-		$return.= '<booking>';
-		$return.= '<booked-slots>';
-		$return.= '<slot-id/>';
-		$return.= '</booked-slots>';
-		$return.= '<resource-id/>';
-		$return.= '<user-id/>';
-		$return.= '</booking>';
+		/**
+		 *	This should retrieve all bookings from the database.
+		 *
+		 *	<!ELEMENT bookings (booking+)>
+		 *	<!ELEMENT booking (booked-slots, resource-id, user-id)>
+		 *	<!ELEMENT booked-slots (slot-id)>
+		 *
+		 */
+		
+		$bookings = TS_Booking::getBookings();
+		
+		// Create a "bookings" element to contain all resources
+		$bookings_element = $xml->createElement("bookings");
+		// Append the "bookings" element to document root element
+		$timeslot_element->appendChild($bookings_element);
+		
+		
+		foreach($bookings as $booking)
+		{
+			// Create a "booking" element to contain all info about a resource
+			$booking_element = $xml->createElement("booking");
+			// Append the "booking" element to the "resources element
+			$bookings_element->appendChild($booking_element);
+			
+			// -- Create and append data elements to the "booking" element --
+			
+			$booked_slots_element = $xml->createElement("booked-slots");
+			$booking_element->appendChild($booked_slots_element);
+			
+			// Get slots that are a part of the booking
+			$slots = $booking->getSlots();
+			
+			foreach($slots as $slot)
+				$booked_slots_element->appendChild( $xml->createElement("slot-id", $slot) );
+			
+			$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()->getID()) );
+			$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
+		}
+/*
+			$return.= '<booking>';
+				$return.= '<booked-slots>';
+					$return.= '<slot-id/>';
+				$return.= '</booked-slots>';
+				$return.= '<resource-id/>';
+				$return.= '<user-id/>';
+			$return.= '</booking>';
 		$return.= '</bookings>';
+*/
+		
+		/* ---------------------------------------- */	
+/**
+ *	NOT STARTED CODE BELOW - Move up when in progress
+ */
+		
+		
+		
+		/*
+		
 
 		$return.= '<allowances>';
 		$return.= '<allowance>';
@@ -149,11 +196,11 @@ class TimeSlot
  */
  
 		// Save XML to file for review
-		$xml->save(plugin_dir_path(__FILE__)."timeslot.xml");
+		$xml->save($this->plugin_dir."timeslot.xml");
 		
 		// Import XSL document
 		$xsl = new DOMDocument();
-		$xsl->load(plugin_dir_path(__FILE__)."timeslot-html-screen.xsl");
+		$xsl->load($this->plugin_dir."timeslot-html-screen.xsl");
 		
 		// Create an XSLT processor and process the XML document
 		$parser = new XSLTProcessor();
@@ -163,11 +210,32 @@ class TimeSlot
 		// Validate XML file against it's DTD
 		echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
 		
+		
+/*
+ *	Temporary form handling for creating bookings
+ */
+		
+		if(isset($_POST['booking-start-time']) && isset($_POST['booking-end-time']))
+		{
+			$startTime = $_POST['booking-start-time'];
+			$duration =  strtotime($_POST['booking-end-time']) - strtotime($_POST['booking-start-time']);
+			
+			$booking = new TS_Booking($startTime, $duration);
+			
+			$booking->save() or die('save');
+		}
+		
 		return $return;
 	}
 }
 
+
 add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
+
+// Ladda jQuery
+// Bortkommenterad för att den inte används.
+//wp_enqueue_script( 'jquery' );
+
 
 // Instantiate a TimeSlot object in order to register shorthand code
 $timeslot = new TimeSlot();
