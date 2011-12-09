@@ -6,7 +6,7 @@ class TS_Resource
 	private $id;
 	private $name;
 	
-	public function __construct($id, $name)
+	public function __construct($name, $id = null)
 	{
 		$this->id = $id;
 		$this->name = $name;
@@ -20,7 +20,7 @@ class TS_Resource
 		
 		foreach($results as $result)
 		{
-			$resources = array_merge($resources, array(new TS_Resource($result->id, $result->name)));
+			$resources = array_merge($resources, array(new TS_Resource($result->name, $result->id)));
 		}
 		
 		return $resources;
@@ -52,6 +52,25 @@ class TS_Resource
 		}
 		
 		return $bookings;
+	}
+	
+	public function save()
+	{
+		// Build argument array for database connector
+		$args = array('name' => $this->name);
+
+		if(TS_WordpressDatabaseConnector::insert("timeslot_resources", $args))
+			return true;
+			
+		return false;
+	}
+	
+	public static function delete($resource_id)
+	{
+		if($GLOBALS['wpdb']->query("DELETE FROM timeslot_resources WHERE id = ".$resource_id." LIMIT 1"))
+			return true;
+		
+		return false;
 	}
 	
 	public function getName()

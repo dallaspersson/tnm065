@@ -43,14 +43,14 @@ class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 	
 	public static function insert($db_table, $args)
 	{
+		
 		// Make sure the database table name is set
 		if(empty($db_table))
 			return false;
 		
 		// Make sure that there are arguments
 		if(empty($args))
-			return false;
-		
+			return false;		
 		
 		$GLOBALS['wpdb']->show_errors();
 		

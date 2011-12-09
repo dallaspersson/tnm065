@@ -219,7 +219,7 @@ class TimeSlot
 		// Create an XSLT processor and process the XML document
 		$parser = new XSLTProcessor();
 		$parser->importStyleSheet($xsl);
-		$return = $parser->transformToXML($xml);
+		$standardView = $parser->transformToXML($xml);
 		
 		// Validate XML file against it's DTD
 		echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
@@ -242,41 +242,48 @@ class TimeSlot
 					$booking = new TS_Booking($_POST['slot_id'], $_POST['user_id'], $_POST['resource_id']);
 					
 					$booking->save() or die('save');
+					
+					$return = '<h2>Your booking is saved</h2>';
 				}
-				
-				$form = '<form method="post">
-				
-		 					<select id="slots" name="slot_id">';
-				/// slots
-		 		$slots = TS_Slot::getSlots();
-		 		
-		 		foreach($slots as $slot)
-		 			$form .= '<option>' . $slot->getID() . '</option>';
+				else
+				{
+					$form = '<form method="post">
 					
-				$form .=	'</select>';
-				
-				
-				//////
-				$form .=	'<select id="resources" name="resource_id">';
-
-		 		$resources = TS_Resource::getResources();
-		 		
-		 		foreach($resources as $resource)
-		 			$form .= '<option value="' . $resource->getID() . '">' . $resource->getName() . '</option>';
+			 					<select id="slots" name="slot_id">';
+					/// slots
+			 		$slots = TS_Slot::getSlots();
+			 		
+			 		foreach($slots as $slot)
+			 			$form .= '<option value="' . $slot->getID() . '">' . $slot->getStartTime() . ' - ' . $slot->getEndTime() . '</option>';
+						
+					$form .=	'</select>';
 					
-				$form .=	'</select>';
-				////////
-				
-				$form .= '		<input name="user_id" type="hidden" value="' . $user->getID() . '"/>
-								<input type="text" disabled="disabled" value="' . ( $user->getName() == '' ? 'unregistered' : $user->getName() ) . '"/>';
-				
-				
-				$form .= '		<input type="submit" value="Book"/>
-							</form>';
+					
+					//////
+					$form .=	'<select id="resources" name="resource_id">';
+	
+			 		$resources = TS_Resource::getResources();
+			 		
+			 		foreach($resources as $resource)
+			 			$form .= '<option value="' . $resource->getID() . '">' . $resource->getName() . '</option>';
+						
+					$form .=	'</select>';
+					////////
+					
+					$form .= '		<input name="user_id" type="hidden" value="' . $user->getID() . '"/>
+									<input type="text" disabled="disabled" value="' . ( $user->getName() == '' ? 'unregistered' : $user->getName() ) . '"/>';
+					
+					
+					$form .= '		<input type="submit" value="Book"/>
+								</form>';
+					
+					$return = $form;
+				}
 			}
 			else if(isset($_GET['remove']))
 			{
-				echo '<script type="text/javascript">alert("remove")</script>';
+				if(isset($_GET['booking_id']))
+					TS_Booking::delete($_GET['booking_id']);
 			}
 			else if(isset($_GET['edit']))
 			{
@@ -287,14 +294,39 @@ class TimeSlot
 				echo '<script type="text/javascript">alert("view (default)")</script>';
 			}
 		}
+		else if(isset($_GET['resource']))
+		{
+			if(isset($_GET['add']))
+			{
+				if(isset($_POST['resource_name']))
+				{
+					$resource = new TS_Resource($_POST['resource_name']);
+					
+					$resource->save() or die('TS_Resource::save() failed!');
+					
+					$return = "<h2>Your resource is created!</h2>";
+				}
+				else
+				{
+					$form = '<form method="post">
+				 					<input type="text" name="resource_name"/>
+				 					<input type="submit" value="Create"/>
+								</form>';
+					
+					$return = $form;
+				}
+			}
+			else if(isset($_GET['remove']))
+			{
+				if(isset($_GET['id']))
+					TS_Resource::delete($_GET['id']);
+			}
+		}
 		else
 		{
 			// Standard state
+			$return = $standardView;
 		}
-
-		
-		
-		$return .= $form;
 		
 		return $return;
 	}

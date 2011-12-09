@@ -74,6 +74,7 @@
 	      			</xsl:element>
 		      	</xsl:otherwise>
 	      	</xsl:choose>
+	      	<a href="?resource&#38;remove&#38;id={id}">Remove</a>
 	    </xsl:for-each>
   	</xsl:template>
 
