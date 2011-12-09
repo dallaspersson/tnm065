@@ -1,4 +1,5 @@
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ex="http://exslt.org/dates-and-times" 
+    extension-element-prefixes="ex">
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
@@ -11,7 +12,11 @@
 				<div class="calander">
 
 					<!-- Current month and year -->
-					<h1 class="big-date">December 2011</h1>
+					<h1 class="big-date">
+						<xsl:value-of select="ex:month-name()"/>
+						<xsl:text> </xsl:text>
+						<xsl:value-of select="ex:year()"/>
+					</h1>
 
 					<!-- Current status -->
 					<em>Current status?</em>
