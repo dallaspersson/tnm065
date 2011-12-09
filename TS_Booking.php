@@ -35,23 +35,6 @@ class TS_Booking
 		return $return;
 	}
 	
-	// FUNCTION STUB
-	public function getResource()
-	{
-		return $this->resource;
-	}
-	
-	// FUNCTION STUB
-	public function getUser()
-	{
-		return $this->user;
-	}
-	
-	public function getSlots()
-	{
-		return $this->slots;
-	}
-	
 	public function save()
 	{
 		// Build argument array for database connector
@@ -87,9 +70,21 @@ class TS_Booking
 		return $this->id;
 	}
 	
-	public function getUserID()
+	// FUNCTION STUB
+	public function getResource()
 	{
-		return $this->user;
+		return $this->resource_id;
+	}
+	
+	// FUNCTION STUB
+	public function getUser()
+	{
+		return $this->user_id;
+	}
+	
+	public function getSlots()
+	{
+		return $this->slots;
 	}
 }
 ?>

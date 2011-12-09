@@ -4,6 +4,7 @@
 			<div class="resources">
 				<h2>Resources</h2>
 				<xsl:apply-templates select="resources" />
+				<a href="?resource&#38;add">Add resource</a>
 			</div>
 			<div class="calander-content">
 
@@ -35,6 +36,7 @@
 					<h2>Bookings</h2>
 					<!-- List bookings -->
 					<xsl:apply-templates select="bookings" />
+					<a href="?booking&#38;add">New booking</a>
 				</div>
 
 			</div>
@@ -102,7 +104,7 @@
 
 				<div class="booking-button-right">
 					<!-- Remove button -->
-					<input TYPE="button" onClick="#" value="Remove"/>
+					<a href="?booking&#38;remove&#38;booking_id={id}">Remove</a>
 				</div>
 
 			</div>
