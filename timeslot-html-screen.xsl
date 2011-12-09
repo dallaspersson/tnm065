@@ -1,5 +1,6 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ex="http://exslt.org/dates-and-times" 
     extension-element-prefixes="ex">
+    <xsl:param name="current_resource" />
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
@@ -41,7 +42,7 @@
 					<h2>Bookings</h2>
 					<!-- List bookings -->
 					<xsl:apply-templates select="bookings" />
-					<a href="?booking&#38;add">New booking</a>
+					<a href="?booking&#38;add&#38;resource_id={$current_resource}">New booking</a>
 				</div>
 
 			</div>

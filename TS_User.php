@@ -1,12 +1,14 @@
 <?php
 class TS_User
 {
-	private $name;
+	private $firstName;
+	private $lastName;
 	private $id;
 	
 	public function __construct(WP_User $user)
 	{
-		$this->name = $user->display_name;
+		$this->firstName = $user->first_name;
+		$this->lastName = $user->last_name;
 		$this->id = $user->ID;
 	}
 	
@@ -17,7 +19,17 @@ class TS_User
 	
 	public function getName()
 	{
-		return $this->name;
+		return $this->getFirstName() . " " . $this->getLastName();
+	}
+	
+	public function getFirstName()
+	{
+		return $this->firstName;
+	}
+	
+	public function getLastName()
+	{
+		return $this->lastName;
 	}
 }
 ?>

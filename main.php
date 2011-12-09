@@ -29,14 +29,14 @@ class TimeSlot
 	public function __construct()
 	{
 		add_shortcode('timeslot', array($this, 'shortcode'));
-		$this->plugin_dir = WP_PLUGIN_DIR .'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
-		$this->plugin_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+		$this->plugin_dir = WP_PLUGIN_DIR . '/' . str_replace(basename( __FILE__), "", plugin_basename(__FILE__));
+		$this->plugin_url = WP_PLUGIN_URL . '/' . str_replace(basename( __FILE__), "", plugin_basename(__FILE__));
 	}
 
 	public function enqueue_my_styles()
 	{	
 		// Link css
-		$tmp_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+		$tmp_url = WP_PLUGIN_URL . '/' . str_replace(basename( __FILE__), "", plugin_basename(__FILE__));
 		wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
 	}
 	
@@ -48,7 +48,7 @@ class TimeSlot
 		// Create an XML document with the Timeslot DTD
 		$implementation = new DOMImplementation();
 		$dtd = $implementation->createDocumentType('timeslot', '', $this->plugin_dir . 'timeslot.dtd');
-		$xml = $implementation->createDocument('','',$dtd);
+		$xml = $implementation->createDocument('', '', $dtd);
 
 		$timeslot_element = $xml->createElement("timeslot");
 		$xml->appendChild($timeslot_element);
@@ -96,8 +96,8 @@ class TimeSlot
 		$user_element = $xml->createElement("user");
 		$users_element->appendChild($user_element);
 		
-		$user_element->appendChild( $xml->createElement("firstname", "Marcus") );
-		$user_element->appendChild( $xml->createElement("lastname", "Stenbeck") );
+		$user_element->appendChild( $xml->createElement("firstname", $user->getFirstName()) );
+		$user_element->appendChild( $xml->createElement("lastname", $user->getLastName()) );
 		$user_element->appendChild( $xml->createElement("e-mail", "* marcus.stenbeck@gmail.com *") );
 		$user_element->appendChild( $xml->createElement("id", $user->getID()) );
 		$user_element->appendChild( $xml->createElement("role", "* The Bry Man *") );
@@ -219,6 +219,7 @@ class TimeSlot
 		// Create an XSLT processor and process the XML document
 		$parser = new XSLTProcessor();
 		$parser->importStyleSheet($xsl);
+		$parser->setParameter('', 'current_resource', $resource_id);
 		$standardView = $parser->transformToXML($xml);
 		
 		// Validate XML file against it's DTD
@@ -260,15 +261,27 @@ class TimeSlot
 					
 					
 					//////
-					$form .=	'<select id="resources" name="resource_id">';
-	
-			 		$resources = TS_Resource::getResources();
-			 		
-			 		foreach($resources as $resource)
-			 			$form .= '<option value="' . $resource->getID() . '">' . $resource->getName() . '</option>';
+					
+					
+					if($_GET['resource_id'])
+					{
+						$resource = TS_Resource::getResources($_GET['resource_id']);
 						
-					$form .=	'</select>';
-					////////
+						$form .= '		<input name="resource_id" type="hidden" value="' . $resource->getID() . '"/>
+										<input type="text" disabled="disabled" value="' . $resource->getName() . '"/>';
+					}
+					else
+					{
+			 			$resources = TS_Resource::getResources();
+			 			
+			 			$form .=	'<select id="resources" name="resource_id">';
+			 			
+			 			foreach($resources as $resource)
+			 				$form .= '<option value="' . $resource->getID() . '">' . $resource->getName() . '</option>';
+						
+						$form .=	'</select>';
+					}
+					//////
 					
 					$form .= '		<input name="user_id" type="hidden" value="' . $user->getID() . '"/>
 									<input type="text" disabled="disabled" value="' . ( $user->getName() == '' ? 'unregistered' : $user->getName() ) . '"/>';
