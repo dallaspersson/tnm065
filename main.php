@@ -42,6 +42,8 @@ class TimeSlot
 	
 	public function shortcode()
 	{
+		if(isset($_GET['resource_id']))
+			$resource_id = $_GET['resource_id'];
 	
 		// Create an XML document with the Timeslot DTD
 		$implementation = new DOMImplementation();
@@ -51,9 +53,7 @@ class TimeSlot
 		$timeslot_element = $xml->createElement("timeslot");
 		$xml->appendChild($timeslot_element);
 
-/**
- *	IN PROGRESS STARTED CODE BELOW - Move up when finished
- */
+
  		/**
  		 *	Get resources from database and put them in XML document.
  		 */
@@ -112,12 +112,33 @@ class TimeSlot
 		 *	<!ELEMENT slot (id,time-range)>
 		 */
 		
-		$return.= '<slots>';
-		$return.= '<slot>';
+		$slots = TS_Slot::getSlots();
+		
+		$slots_element = $xml->createElement("slots");
+		$timeslot_element->appendChild($slots_element);
+		
+		foreach($slots as $slot)
+		{
+			// Create a "resource" element to contain all info about a resource
+			$slot_element = $xml->createElement("slot");
+			// Append the "resource" element to the "resources element
+			$slots_element->appendChild($slot_element);
+			
+			// Create and append data elements to the "resource" element
+			$slot_element->appendChild( $xml->createElement("id", $slot->getID()) );
+			
+			$time_range_element = $xml->createElement("time-range");
+			$time_range_element->setAttribute("start", $slot->getStartTime());
+			$time_range_element->setAttribute("end", $slot->getEndTime());
+			$time_range_element->setAttribute("status", "default");
+			
+			$slot_element->appendChild($time_range_element);
+		}
+
+
 		$return.= '<id/>';
 		$return.= '<time-range start="" end="" status=""/>';
-		$return.= '</slot>';
-		$return.= '</slots>';
+
 
 		/* ---------------------------------------- */
 		
@@ -137,33 +158,30 @@ class TimeSlot
 		// Append the "bookings" element to document root element
 		$timeslot_element->appendChild($bookings_element);
 		
+		// Choose the first resource ID if a resource_id isn't passed
+		if(!isset($resource_id))
+			$resource_id = $resources[0]->getID();
+		
 		foreach($bookings as $booking)
 		{
-			// Create a "booking" element to contain all info about a resource
-			$booking_element = $xml->createElement("booking");
-			// Append the "booking" element to the "resources element
-			$bookings_element->appendChild($booking_element);
-			
-			// -- Create and append data elements to the "booking" element --
-			$booking_element->appendChild( $xml->createElement("id", $booking->getID()) );
-			
-			$booked_slots_element = $xml->createElement("booked-slots");
-			$booking_element->appendChild($booked_slots_element);	
-			$booked_slots_element->appendChild( $xml->createElement("slot-id", $booking->getSlots()) );
-			
-			$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()) );
-			$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
+			if($booking->getResource() == $resource_id)
+			{
+				// Create a "booking" element to contain all info about a resource
+				$booking_element = $xml->createElement("booking");
+				// Append the "booking" element to the "resources element
+				$bookings_element->appendChild($booking_element);
+				
+				// -- Create and append data elements to the "booking" element --
+				$booking_element->appendChild( $xml->createElement("id", $booking->getID()) );
+				
+				$booked_slots_element = $xml->createElement("booked-slots");
+				$booking_element->appendChild($booked_slots_element);	
+				$booked_slots_element->appendChild( $xml->createElement("slot-id", $booking->getSlots()) );
+				
+				$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()) );
+				$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
+			}
 		}
-/*
-			$return.= '<booking>';
-				$return.= '<booked-slots>';
-					$return.= '<slot-id/>';
-				$return.= '</booked-slots>';
-				$return.= '<resource-id/>';
-				$return.= '<user-id/>';
-			$return.= '</booking>';
-		$return.= '</bookings>';
-*/
 		
 		/* ---------------------------------------- */	
 /**
@@ -273,6 +291,8 @@ class TimeSlot
 		{
 			// Standard state
 		}
+
+		
 		
 		$return .= $form;
 		

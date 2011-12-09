@@ -59,7 +59,7 @@
 					<xsl:element name="a">
 					  	<xsl:attribute name="href">
 					  		<!-- Link to correct schedual-->
-					  		<!--<xsl:value-of select="link" />-->
+					  		?resource_id=<xsl:value-of select="id"/>
 					  	</xsl:attribute>
 		      			<p class="current-resource"><xsl:value-of select="resource-type"/></p>
 	      			</xsl:element>
@@ -68,7 +68,7 @@
 		      		<xsl:element name="a">
 					  	<xsl:attribute name="href">
 					  		<!-- Link to correct schedual-->
-					  		<!--<xsl:value-of select="link" />-->
+					  		?resource_id=<xsl:value-of select="id"/>
 					  	</xsl:attribute>
 		      			<p class="not-current-resource"><xsl:value-of select="resource-type"/></p>
 	      			</xsl:element>

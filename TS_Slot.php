@@ -66,5 +66,19 @@ class TS_Slot
 	{
 		return $this->id;
 	}
+	
+	public function getStartTime()
+	{
+		return $this->start;
+	}
+	
+	public function getEndTime()
+	{
+		$endTimestamp = strtotime($this->start) + $this->duration;
+		
+		$endTime = date("Y-m-d H:i:s", $endTimestamp);
+		
+		return $endTime;
+	}
 }
 ?>
