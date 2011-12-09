@@ -96,8 +96,8 @@ class TimeSlot
 		$user_element = $xml->createElement("user");
 		$users_element->appendChild($user_element);
 		
-		$user_element->appendChild( $xml->createElement("firstname", $user->getName()) );
-		$user_element->appendChild( $xml->createElement("lastname", $user->getName()) );
+		$user_element->appendChild( $xml->createElement("firstname", "Marcus") );
+		$user_element->appendChild( $xml->createElement("lastname", "Stenbeck") );
 		$user_element->appendChild( $xml->createElement("e-mail", "* marcus.stenbeck@gmail.com *") );
 		$user_element->appendChild( $xml->createElement("id", $user->getID()) );
 		$user_element->appendChild( $xml->createElement("role", "* The Bry Man *") );
