@@ -22,20 +22,6 @@
 					<em>Current status?</em> -->
 
 					<xsl:call-template name="Calendar" />
-
-					<!-- Input booking -->
-					<form method="post">
-		 				<input type="hidden" value="booking"/>
-		 			
-		 				<label for="booking-start-time">Start Time</label>
-						<input type="datetime" id="booking-start-time" name="booking-start-time"/><br />
-						
-						<label for="booking-end-time">End Time</label>
-						<input type="datetime" id="booking-end-time" name="booking-end-time"/><br />
-						
-						<input type="submit" value="Book"/>
-					</form>
-
 					
 				</div>
 
@@ -176,7 +162,7 @@
 	</xsl:template> 
 
 	<xsl:template name="Calendar"> 
-	  <table summary="Monthly calendar"> 
+	  <table class="calendar-table" summary="Monthly calendar"> 
 	    <caption> 
     		<h1 class="big-date">
 				<xsl:value-of select="$MonthName" /> 
@@ -231,6 +217,9 @@
 	      	<!-- If today -->
 	      	<xsl:choose>
 	      		<xsl:when test="$day = $Today">
+	      			<div class="today">
+	      				<p>Today</p>
+	      			</div>
 	      			<strong>
 	      				<xsl:value-of select="$day" /> 
 	      			</strong>
