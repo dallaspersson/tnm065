@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `timeslot_bookings` (
   `slots` VARCHAR(1024) NOT NULL,
   `user_id` int(11) NOT NULL,
   `resource_id` int(11) NOT NULL,
-  PRIMARY KEY  (`id`),
+  PRIMARY KEY  (`id`)
   
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
