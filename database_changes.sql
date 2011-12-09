@@ -98,6 +98,7 @@ ALTER TABLE `timeslot_bookings`
 ALTER TABLE `wordpress`.`timeslot_bookings` RENAME TO  `wordpress`.`timeslot_slots` ;
 
 drop table `wordpress`.`timeslot_resources_schedule`;
+drop table `wordpress`.`timeslot_bookings`;
 
 -- ---------------------------------------------------------------
 
