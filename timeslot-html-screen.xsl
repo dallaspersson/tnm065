@@ -138,6 +138,7 @@
 
   	<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
   	<xsl:variable name="DisplayDate" select="date:date()"/> 
+  	<xsl:variable name="Today" select="date:day-in-month()"/> 
 	<xsl:variable name="Year" select="date:year($DisplayDate)"/> 
 	<xsl:variable name="Month" select="date:month-in-year($DisplayDate)"/> 
 	<xsl:variable name="MonthName" select="date:month-name($DisplayDate)" /> 
@@ -227,7 +228,17 @@
 	    </xsl:when> 
 	    <xsl:otherwise> 
 	      <td> 
-	        <xsl:value-of select="$day" /> 
+	      	<!-- If today -->
+	      	<xsl:choose>
+	      		<xsl:when test="$day = $Today">
+	      			<strong>
+	      				<xsl:value-of select="$day" /> 
+	      			</strong>
+	      		</xsl:when>
+	      		<xsl:otherwise>
+	        		<xsl:value-of select="$day" /> 
+	        	</xsl:otherwise>
+	    	</xsl:choose>
 	      </td> 
 	      <xsl:if test="$count &lt; 7"> 
 	        <xsl:call-template name="CalendarDay"> 
