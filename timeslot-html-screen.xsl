@@ -56,7 +56,7 @@
 	<xsl:template match="resources">
 		<xsl:for-each select="resource">
 			<xsl:choose>
-				<xsl:when test="position() = 1">
+				<xsl:when test="id = $current_resource">
 					<xsl:element name="a">
 					  	<xsl:attribute name="href">
 					  		<!-- Link to correct schedual-->
