@@ -213,22 +213,28 @@
 	      </xsl:if> 
 	    </xsl:when> 
 	    <xsl:otherwise> 
-	      <td> 
-	      	<!-- If today -->
-	      	<xsl:choose>
-	      		<xsl:when test="$day = $Today">
-	      			<div class="today">
-	      				<p>Today</p>
-	      			</div>
-	      			<strong>
-	      				<xsl:value-of select="$day" /> 
-	      			</strong>
-	      		</xsl:when>
-	      		<xsl:otherwise>
-	        		<xsl:value-of select="$day" /> 
-	        	</xsl:otherwise>
-	    	</xsl:choose>
-	      </td> 
+				<td> 
+					<xsl:element name="a">
+					  	<xsl:attribute name="href">#
+					  	</xsl:attribute>
+					  	<div class="cell-link">
+							<xsl:choose>
+								<!-- If today -->
+								<xsl:when test="$day = $Today">
+									<div class="today">
+										<p>Today</p>
+									</div>
+									<strong>
+										<xsl:value-of select="$day" /> 
+									</strong>
+								</xsl:when>
+								<xsl:otherwise>
+								<xsl:value-of select="$day" /> 
+							</xsl:otherwise>
+							</xsl:choose>
+						</div>
+					</xsl:element>
+				</td> 
 	      <xsl:if test="$count &lt; 7"> 
 	        <xsl:call-template name="CalendarDay"> 
 	          <xsl:with-param name="count" select="$count + 1" /> 

@@ -86,6 +86,11 @@ h1.big-date{
 	font-size:11px;
 	width:100%;
 }
+
+td .cell-link {
+	height:100%;
+	width:100%;
+}
 table { 
     border:1px solid #CCC; 
     border-collapse: collapse; 
