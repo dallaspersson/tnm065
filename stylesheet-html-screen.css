@@ -75,3 +75,47 @@ h1.big-date{
 	margin: 0 auto;
 	width: 100%;
 }
+
+/* Calander */
+.today {
+	background-color:#1982D1;
+	color:white;
+	position:absolute;
+	left:0px;
+	top:0px;
+	font-size:11px;
+	width:100%;
+}
+
+td .cell-link {
+	height:100%;
+	width:100%;
+}
+table { 
+    border:1px solid #CCC; 
+    border-collapse: collapse; 
+  } 
+  caption { 
+    font-weight:bold; 
+    font-size:120%; 
+    margin-bottom:8px; 
+  } 
+   
+  .calendar-table td, .calendar-table th { 
+    text-align:center; 
+    vertical-align:middle; 
+    width:36px; 
+    height:34px; 
+    border:1px solid #CCC; 
+    padding:0; 
+    position:relative;
+    padding: 12px 0px 12px 0px;
+  } 
+   
+  th { 
+    height:inherit; 
+  } 
+   
+  .empty { 
+    background-color:#EEE; 
+  }
