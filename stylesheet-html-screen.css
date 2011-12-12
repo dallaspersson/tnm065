@@ -90,6 +90,7 @@ h1.big-date{
 td .cell-link {
 	height:100%;
 	width:100%;
+	padding: 12px 0px 12px 0px;
 }
 table { 
     border:1px solid #CCC; 
@@ -109,7 +110,7 @@ table {
     border:1px solid #CCC; 
     padding:0; 
     position:relative;
-    padding: 12px 0px 12px 0px;
+    
   } 
    
   th { 
