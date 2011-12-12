@@ -1,29 +1,54 @@
 <?php
-abstract class TS_Schedule
-{
-	protected $id;
-	protected $duration;
-	protected $start;
-	protected $repeat = 0;
-	
-	public abstract function getAvailability($timestamp);
+include_once 'TS_AbstractSlot.php';
 
-	public function getDuration()
+class TS_Schedule extends TS_AbstractSlot
+{
+	private $notes;
+	private $schedules;
+	
+	public function __construct($schedules)
 	{
-		// return the duration of the schedule range
-		return $this->duration;
+		$this->schedules = $schedules;
 	}
 	
-	public function getStart()
+	// Checks if a specific timestamp is availible 
+	// in the composite schedual, and returns true or false.
+	public function getAvailability($timestamp)
 	{
-		// return when the range starts
-		return $this->start;
+		$available = false;
+		
+		// Loop through all of the objects scheduals
+		foreach($this->schedules as $schedule)
+			if($schedule->getAvailability($timestamp))
+			{
+				$available = true;
+				break;
+			}
+			
+		return $available;
 	}
 	
-	public function getRepeat()
+	public function setNotes($notes)
 	{
-		// return how many times the range repeats
-		return $this->repeat;
+		$this->notes = $notes;
+	}
+	
+	public function save()
+	{
+		$args = array('start' => date("Y-m-d H:i:s", strtotime($this->start)), 'duration' => $this->duration, 'notes' => $this->notes);
+		
+		if(TS_WordpressDatabaseConnector::insert("timeslot_schedules", $args))
+			return true;
+		
+		return false;
+	}
+	
+	public static function delete($id)
+	{
+		if($GLOBALS['wpdb']->query("DELETE FROM timeslot_schedules WHERE id = ".$id." LIMIT 1"))
+			return true;
+		
+		return false;
 	}
 }
 ?>

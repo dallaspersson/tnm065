@@ -16,8 +16,8 @@ include 'TS_WordpressDatabaseConnector.php';
 include 'TS_Resource.php';
 include 'TS_User.php';
 include 'TS_Slot.php';
+include 'TS_Schedule.php';
 include 'TS_Booking.php';
-include 'TS_CompositeSchedule.php';
 
 class TimeSlot
 {
@@ -328,6 +328,67 @@ class TimeSlot
 					
 					$return = $form;
 				}
+			}
+			else if(isset($_GET['remove']))
+			{
+				if(isset($_GET['id']))
+					TS_Resource::delete($_GET['id']);
+			}
+		}
+		else if(isset($_GET['schedule']))
+		{
+			if(isset($_GET['add']))
+			{
+				if(isset($_POST['start']) && isset($_POST['end']))
+				{
+					$duration = $_POST['end'] - $_POST['start'];
+					
+					$schedule = new TS_Schedule($_POST['start'], $duration);
+					
+					if(isset($_POST['schedule_notes']))
+						$schedule->setNotes($_POST['schedule_notes']);
+					
+					$schedule->save() or die('TS_Schedule::save() failed!');
+					
+					$return = "<h2>Your schedule is created!</h2>";
+				}
+				else
+				{
+					$form = '<form method="post">
+				 					<label for="start">Starting Date</label>
+				 					<input type="date" id="start" name="start"/>
+				 					
+				 					<label for="end">Ending Date</label>
+				 					<input type="date" id="end" name="end" />
+				 					
+				 					<label for="period_name">Schedule Name</label>
+				 					<textarea id="schedule_notes" name="schedule_notes"></textarea>
+				 					
+				 					<input type="submit" value="Create"/>
+								</form>';
+					
+					$return = $form;
+				}
+			}
+			else if(isset($_GET['edit']))
+			{
+				$form = '<form method="post">
+							<h2>2011-12-12</h2>
+							<ul>
+								<li><input type="checkbox" id="hona" value=""/><label for="hona">Höna</label></li>
+								<li><input type="checkbox" id="labrador" value=""/><label for="labrador">Labrador</label></li>
+								<li><input type="checkbox" id="krabba" value=""/><label for="krabba">Krabba</label></li>
+							</ul>
+							
+							<h2>2011-12-13</h2>
+							<ul>
+								<li><input type="checkbox" id="hona" value=""/><label for="hona">Höna</label></li>
+								<li><input type="checkbox" id="labrador" value=""/><label for="labrador">Labrador</label></li>
+								<li><input type="checkbox" id="krabba" value=""/><label for="krabba">Krabba</label></li>
+							</ul>
+						</form>';
+						
+				$return = $form;
 			}
 			else if(isset($_GET['remove']))
 			{

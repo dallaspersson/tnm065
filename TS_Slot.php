@@ -1,21 +1,9 @@
 <?php
+include_once 'TS_AbstractSlot.php';
 include_once 'TS_WordpressDatabaseConnector.php';
 
-class TS_Slot
-{
-	
-	// These are implemented
-	protected $id;
-	protected $start;
-	protected $duration;
-	
-	public function __construct($start, $duration, $id = null)
-	{
-		$this->id = $id;
-		$this->start = $start;
-		$this->duration = $duration;
-	}
-	
+class TS_Slot extends TS_AbstractSlot
+{	
 	public static function getSlots()
 	{
 		$cols = array("id", "start", "duration");
@@ -31,6 +19,20 @@ class TS_Slot
 		
 		return $return;
 	}
+	
+	// Checks if a specific timestamp is availible 
+	// and returns true or false.
+	public function getAvailability($timestamp)
+	{
+		// if DateTime is within start to end
+		$end = $this->start + $this->duration * ($this->repeat + 1);
+		
+		if($timestamp >= $this->start && $timestamp < $end)
+			return true;
+		
+		return false;
+	}
+
 	
 	public function save()
 	{
@@ -65,20 +67,6 @@ class TS_Slot
 	public function getID()
 	{
 		return $this->id;
-	}
-	
-	public function getStartTime()
-	{
-		return $this->start;
-	}
-	
-	public function getEndTime()
-	{
-		$endTimestamp = strtotime($this->start) + $this->duration;
-		
-		$endTime = date("Y-m-d H:i:s", $endTimestamp);
-		
-		return $endTime;
 	}
 }
 ?>

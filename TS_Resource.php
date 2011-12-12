@@ -1,5 +1,4 @@
 <?php
-include_once 'TS_Day.php';
 
 class TS_Resource
 {
