@@ -6,13 +6,10 @@
 				<xsl:apply-templates select="resources" />
 			</div>
 			<div class="calander-content">
-
-				<div class="calander">
-
-					<xsl:call-template name="Calendar" />
-					
-				</div>
-
+				<xsl:call-template name="Calendar" />
+			</div>
+			<div class="bookings">
+				<xsl:apply-templates select="bookings" />
 			</div>
 		</div>
 	</xsl:template>
@@ -20,17 +17,85 @@
 
 
 	<xsl:template match="resources">
-		<xsl:element name="select">
-			<xsl:attribute name="resource_drop" />
-			<xsl:for-each select="resource">
-			  	<xsl:element name="option">
-			  		<xsl:attribute name="value">
-			  			<xsl:value-of select="id" />
-			  		</xsl:attribute>
-			  		<xsl:value-of select="resource-type"/>
-			  	</xsl:element>
-		    </xsl:for-each>
-	    </xsl:element>
+		<xsl:element name="form">
+			<xsl:attribute name="action">
+	  			<xsl:text>this.value</xsl:text>
+	  		</xsl:attribute>
+	  		<xsl:attribute name="method">
+	  			<xsl:text>get</xsl:text>
+	  		</xsl:attribute>
+			<xsl:element name="select">
+				<xsl:attribute name="resource_drop" />
+				<xsl:for-each select="resource">
+				  	<xsl:element name="option">
+				  		<xsl:attribute name="value">
+				  			?resource_id=<xsl:value-of select="id"/>
+				  		</xsl:attribute>
+				  		<xsl:value-of select="resource-type"/>
+				  	</xsl:element>
+			    </xsl:for-each>
+		    </xsl:element>
+		    <!-- Button -->
+		    <xsl:element name="input">
+		    	<xsl:attribute name="type">
+		    		<xsl:text>submit</xsl:text>
+		    	</xsl:attribute>
+		    	<xsl:attribute name="value">
+		    		<xsl:text>Submit</xsl:text>
+		    	</xsl:attribute>
+		    </xsl:element>
+		</xsl:element>
+  	</xsl:template>
+
+  	<xsl:template match="bookings">
+  		<!-- Loop through all bookings -->
+		<xsl:for-each select="booking">
+
+			<xsl:variable name="current_user_id">
+				<xsl:value-of select="user-id" />
+			</xsl:variable>
+
+				<div class="fat-bottom">
+					<div class="left-booking">
+						<xsl:apply-templates select="booked-slots"/><br />
+
+						<!-- Print user --> 
+						<em class="comment-text">
+							<xsl:for-each select="/timeslot/users/user">
+								<xsl:choose>
+									<xsl:when test="id = $current_user_id">
+										<xsl:value-of select="firstname" />
+										<xsl:text> </xsl:text>
+										<xsl:value-of select="lastname" />
+									</xsl:when>
+									<xsl:otherwise>
+										<xsl:value-of select="$current_user_id"/> 
+										<xsl:value-of select="id" />
+									</xsl:otherwise>
+								</xsl:choose>
+								
+							</xsl:for-each>
+						</em>
+
+						
+					</div>
+
+
+					<div class="right-booking">
+						<!-- Remove button -->
+						<a href="?booking&#38;remove&#38;booking_id={id}">Remove</a>
+					</div>
+
+				</div>
+			
+		</xsl:for-each>
+  	</xsl:template>
+
+  	<xsl:template match="booked-slots">
+		<xsl:for-each select="slot-id">
+			<xsl:text>Slot </xsl:text>
+			<xsl:apply-templates />
+		</xsl:for-each>
   	</xsl:template>
 
 
