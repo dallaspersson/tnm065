@@ -28,6 +28,9 @@ class TimeSlot
 	
 	public function __construct()
 	{
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', '1');*/
+
 		add_shortcode('timeslot', array($this, 'shortcode'));
 		$this->plugin_dir = WP_PLUGIN_DIR .'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 		$this->plugin_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
@@ -37,7 +40,20 @@ class TimeSlot
 	{	
 		// Link css
 		$tmp_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
-		wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+		//wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+
+		$a = new TimeSlot();
+
+		if ($a->is_mobile()) {
+			// Place code you wish to execute if browser is mobile here
+			wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-mobile.css');
+		}
+
+		else {
+			// Place code you wish to execute if browser is NOT mobile here
+			wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+			//wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-mobile.css');
+		}
 	}
 
 	public function is_mobile() {
@@ -410,12 +426,10 @@ class TimeSlot
 
 		if ($this->is_mobile()) {
 			// Place code you wish to execute if browser is mobile here
-			echo "mobile detected!";
 			$xsl->load($this->plugin_dir."timeslot-html-mobile.xsl");
 		}
 
 		else {
-			echo "mobile NOT detected!";
 			// Place code you wish to execute if browser is NOT mobile here
 			$xsl->load($this->plugin_dir."timeslot-html-screen.xsl");
 		}
@@ -538,8 +552,8 @@ class TimeSlot
 	
 }
 
-
 add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
+
 
 // Ladda jQuery
 // Bortkommenterad för att den inte används.

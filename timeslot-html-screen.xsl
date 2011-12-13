@@ -163,7 +163,7 @@
 	</xsl:template> 
 
 	<xsl:template name="Calendar"> 
-	  <table class="calendar-table" summary="Monthly calendar"> 
+	  <table class="calander-table" summary="Monthly calendar"> 
 	    <caption> 
     		<h1 class="big-date">
 				<xsl:value-of select="$MonthName" /> 

@@ -3,7 +3,7 @@
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
-				<h2>Resources</h2>
+				<xsl:apply-templates select="resources" />
 			</div>
 			<div class="calander-content">
 
@@ -15,9 +15,27 @@
 
 			</div>
 		</div>
+	</xsl:template>
 
 
-<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
+
+	<xsl:template match="resources">
+		<xsl:element name="select">
+			<xsl:attribute name="resource_drop" />
+			<xsl:for-each select="resource">
+			  	<xsl:element name="option">
+			  		<xsl:attribute name="value">
+			  			<xsl:value-of select="id" />
+			  		</xsl:attribute>
+			  		<xsl:value-of select="resource-type"/>
+			  	</xsl:element>
+		    </xsl:for-each>
+	    </xsl:element>
+  	</xsl:template>
+
+
+
+	<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
   	<xsl:variable name="DisplayDate" select="date:date()"/> 
   	<xsl:variable name="Today" select="date:day-in-month()"/> 
 	<xsl:variable name="Year" select="date:year($DisplayDate)"/> 
@@ -57,7 +75,7 @@
 	</xsl:template> 
 
 	<xsl:template name="Calendar"> 
-	  <table class="calendar-table" summary="Monthly calendar"> 
+	  <table class="calander-table" summary="Monthly calendar"> 
 	    <caption> 
     		<h1 class="big-date">
 				<xsl:value-of select="$MonthName" /> 
@@ -116,9 +134,9 @@
 							<xsl:choose>
 								<!-- If today -->
 								<xsl:when test="$day = $Today">
-									<div class="today">
+									<!--<div class="today">
 										<p>Today</p>
-									</div>
+									</div>-->
 									<strong>
 										<xsl:value-of select="$day" /> 
 									</strong>
