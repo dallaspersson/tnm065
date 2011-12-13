@@ -18,7 +18,7 @@ class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 		print 'TS_WordpressDatabaseConnector::disconnect()';
 	}
 	
-	public function select($db_table, $cols)
+	public function select($db_table, $cols, $conditions = null)
 	{
 		
 		// Make sure the database table name is set
@@ -35,6 +35,18 @@ class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 			$query .= ", " . $col;
 		$query .= " FROM " . $db_table;
 		
+		if($conditions)
+		{
+			$query .= ' WHERE';
+			foreach($conditions as $condition => $value)
+				$query .= ' ' . $condition . ' = ' . $value . ' AND';
+				
+			// Remove trailing " AND"
+			$query = substr($query, 0, -4);
+		}
+		
+		
+		
 		// Fetch data
 		$results = $GLOBALS['wpdb']->get_results($query);
 		
@@ -50,12 +62,20 @@ class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 		
 		// Make sure that there are arguments
 		if(empty($args))
-			return false;		
+			return false;
 		
 		$GLOBALS['wpdb']->show_errors();
 		
+		// Try to insert data
+		// If successful then:
+		// 1. return insert_id if it is not zero
+		// 2. return true if insert_id is zero
 		if($GLOBALS['wpdb']->insert($db_table, $args))
-			return true;
+			if($insert_id = $GLOBALS['wpdb']->insert_id)
+				return $insert_id;
+			else
+				return true;
+				
 		
 		return false;
 	}
@@ -68,6 +88,11 @@ class TS_WordpressDatabaseConnector implements TS_DatabaseConnector
 	public function update()
 	{
 		print 'TS_WordpressDatabaseConnector::update()';
+	}
+	
+	public static function query($query)
+	{
+		return $GLOBALS['wpdb']->get_results($query);
 	}
 }
 ?>

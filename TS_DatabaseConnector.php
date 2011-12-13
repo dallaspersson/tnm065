@@ -7,5 +7,6 @@ interface TS_DatabaseConnector
 	public static function insert($db_table, $args);
 	public function delete();
 	public function update();
+	public static function query($query);
 }
 ?>

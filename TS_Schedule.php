@@ -6,10 +6,12 @@ class TS_Schedule extends TS_AbstractSlot
 	private $notes;
 	private $schedules;
 	
+	/*
 	public function __construct($schedules)
 	{
 		$this->schedules = $schedules;
 	}
+	*/
 	
 	// Checks if a specific timestamp is availible 
 	// in the composite schedual, and returns true or false.
@@ -28,14 +30,49 @@ class TS_Schedule extends TS_AbstractSlot
 		return $available;
 	}
 	
+	public function getSlots()
+	{
+		$query = 'SELECT timeslot_slots.id, timeslot_slots.start, timeslot_slots.duration FROM timeslot_slots, timeslot_schedules_slots WHERE timeslot_slots.id = timeslot_schedules_slots.slot_id AND timeslot_schedules_slots.schedule_id = ' . $this->id;
+		
+		$results = TS_WordpressDatabaseConnector::query($query);
+		
+		$slots = array();
+		
+		foreach($results as $result)
+			$slots[strtotime($result->start)] = new TS_Slot($result->start, $result->duration, $result->id);
+		
+		return $slots;
+	}
+	
 	public function setNotes($notes)
 	{
 		$this->notes = $notes;
 	}
 	
+	public static function getSchedule($id)
+	{
+		$args = array('id', 'start', 'duration');
+		$cond = array();
+		
+		$schedules = TS_WordpressDatabaseConnector::select('timeslot_schedules', $args);
+		
+		$return = array();
+		
+		foreach($schedules as $schedule)
+		{
+			if($schedule->id == $id)
+				$return = array_merge($return, array(new TS_Schedule($schedule->start, $schedule->duration, $schedule->id)));
+		}
+		
+		return $return;
+	}
+	
 	public function save()
 	{
-		$args = array('start' => date("Y-m-d H:i:s", strtotime($this->start)), 'duration' => $this->duration, 'notes' => $this->notes);
+		$args = array(
+						'start' => date("Y-m-d H:i:s", strtotime($this->start)),
+						'duration' => $this->duration
+					);
 		
 		if(TS_WordpressDatabaseConnector::insert("timeslot_schedules", $args))
 			return true;

@@ -43,36 +43,6 @@ CREATE TABLE IF NOT EXISTS `timeslot_resources` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `timeslot_resources_schedule`
---
-
-CREATE TABLE IF NOT EXISTS `timeslot_resources_schedule` (
-  `resource_id` int(11) NOT NULL,
-  `schedule_id` int(11) NOT NULL,
-  KEY `schedule_id` (`schedule_id`),
-  KEY `resource_id` (`resource_id`),
-  CONSTRAINT `timeslot_resources_schedule_ibfk_1` FOREIGN KEY (`resource_id`) REFERENCES `timeslot_resources` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `timeslot_resources_schedule_ibfk_2` FOREIGN KEY (`schedule_id`) REFERENCES `timeslot_schedule` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `timeslot_schedule`
---
-
-CREATE TABLE IF NOT EXISTS `timeslot_schedule` (
-  `id` int(11) NOT NULL auto_increment,
-  `start` date NOT NULL,
-  `duration` int(11) NOT NULL,
-  `repeat` int(11) NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
 
 -- ---------------------------------------------------------------
 
@@ -129,3 +99,48 @@ ON UPDATE CASCADE
 ON DELETE CASCADE;
 
 ALTER TABLE `wordpress`.`timeslot_bookings` DROP FOREIGN KEY `resource_id` ;
+
+-- ------------------------------------------
+
+--
+-- Create table timeslot_schedules
+--
+
+CREATE TABLE IF NOT EXISTS `timeslot_schedules` (
+  `id` int(11) NOT NULL auto_increment,
+  `start` datetime NOT NULL,
+  `duration` bigint(20) NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- -------------------------------------------
+
+--
+-- Create many-to-many relation table between timeslot_schedules and timeslot_slots
+--
+
+CREATE TABLE IF NOT EXISTS `timeslot_schedules_slots` (
+	`schedule_id` int(11) NOT NULL,
+	`slot_id` int(11) NOT NULL,
+	KEY `schedule_id` (`schedule_id`),
+	KEY `slot_id` (`slot_id`),
+	CONSTRAINT `timeslot_schedules_fk`
+		FOREIGN KEY (`schedule_id`)
+		REFERENCES `timeslot_schedules` (`id`)
+		ON DELETE CASCADE
+		ON UPDATE CASCADE,
+	CONSTRAINT `timeslot_slot_fk`
+		FOREIGN KEY (`slot_id`)
+		REFERENCES `timeslot_slots` (`id`)
+		ON DELETE CASCADE
+		ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------
+
+--
+-- Make start time and duration a unique key in timeslot_slots
+--
+
+ALTER TABLE `timeslot_slots`
+ADD UNIQUE `unique_start_duration` (`start`, `duration`);

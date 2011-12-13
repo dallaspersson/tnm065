@@ -4,11 +4,11 @@ include_once 'TS_WordpressDatabaseConnector.php';
 
 class TS_Slot extends TS_AbstractSlot
 {	
-	public static function getSlots()
+	public static function getSlots($cond = null)
 	{
 		$cols = array("id", "start", "duration");
 		
-		$slots = TS_WordpressDatabaseConnector::select("timeslot_slots", $cols);
+		$slots = TS_WordpressDatabaseConnector::select("timeslot_slots", $cols, $cond);
 		
 		$return = array();
 		
@@ -32,15 +32,33 @@ class TS_Slot extends TS_AbstractSlot
 		
 		return false;
 	}
-
 	
-	public function save()
+	public function save($schedule_id = null)
 	{
-		//$args = array('user_id' => $this->user, 'resource_id' => $this->resource, 'start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
-		$args = array('start' => date("Y-m-d H:i:s", strtotime($this->start)), 'duration' => $this->duration);
-		
-		if(TS_WordpressDatabaseConnector::insert("timeslot_slots", $args))
-			return true;
+		if($schedule_id)
+		{
+			$args = array('start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
+			
+			// Try to add slot to database and connect it to a schedule.
+			// Delete the slot if not able to connect to schedule.
+			if($this->id = TS_WordpressDatabaseConnector::insert("timeslot_slots", $args))
+				if($result = TS_WordpressDatabaseConnector::insert("timeslot_schedules_slots", array('schedule_id' => $schedule_id, 'slot_id' => $this->id)))
+					return $this->id;
+				else
+				{
+					echo $result;
+					$this->delete($this->id);
+				}
+		}
+		else
+		{
+			//$args = array('user_id' => $this->user, 'resource_id' => $this->resource, 'start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
+			$args = array('start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
+			
+			// Try to add slot to database
+			if($this->id = TS_WordpressDatabaseConnector::insert("timeslot_slots", $args))
+				return $this->id;
+		}
 		
 		return false;
 	}

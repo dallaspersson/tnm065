@@ -341,12 +341,14 @@ class TimeSlot
 			{
 				if(isset($_POST['start']) && isset($_POST['end']))
 				{
-					$duration = $_POST['end'] - $_POST['start'];
-					
+					$duration = strtotime($_POST['end']) - strtotime($_POST['start']);
 					$schedule = new TS_Schedule($_POST['start'], $duration);
 					
+					// Implement saving of notes
+					/*
 					if(isset($_POST['schedule_notes']))
 						$schedule->setNotes($_POST['schedule_notes']);
+					*/
 					
 					$schedule->save() or die('TS_Schedule::save() failed!');
 					
@@ -372,23 +374,81 @@ class TimeSlot
 			}
 			else if(isset($_GET['edit']))
 			{
-				$form = '<form method="post">
-							<h2>2011-12-12</h2>
-							<ul>
-								<li><input type="checkbox" id="hona" value=""/><label for="hona">Höna</label></li>
-								<li><input type="checkbox" id="labrador" value=""/><label for="labrador">Labrador</label></li>
-								<li><input type="checkbox" id="krabba" value=""/><label for="krabba">Krabba</label></li>
-							</ul>
-							
-							<h2>2011-12-13</h2>
-							<ul>
-								<li><input type="checkbox" id="hona" value=""/><label for="hona">Höna</label></li>
-								<li><input type="checkbox" id="labrador" value=""/><label for="labrador">Labrador</label></li>
-								<li><input type="checkbox" id="krabba" value=""/><label for="krabba">Krabba</label></li>
-							</ul>
-						</form>';
+				$slotsPerDay = 24;
+				$slotLength = 86400 / $slotsPerDay;
+				
+				if(isset($_POST['schedule_id']))
+				{
+					echo '<pre>';
+					print_r($_POST);
+					
+					// Separate the slots to add
+					$slots = array();
+					while($post = current($_POST))
+					{
+						$key = key($_POST);
+						if(substr($key, 0, 2) == 't_')
+							$slots[$key] = $_POST[$key];
 						
-				$return = $form;
+						next($_POST);
+					}
+					print_r($slots);
+					echo '</pre>';
+					
+					foreach($slots as $slot)
+					{
+						// Create a slot object
+						$aSlot = new TS_Slot($slot, $slotLength);
+						
+						// Save the slot object
+						echo $aSlot->save($_POST['schedule_id']) . '<br/>';
+					}
+					
+				}
+				else if(isset($_GET['schedule_id']))
+				{
+					$schedule_id = $_GET['schedule_id'];
+					
+					$schedule = TS_Schedule::getSchedule($schedule_id);
+					$schedule = $schedule[0];
+					
+					echo '<pre>';
+					print_r($schedule);
+					
+					
+					$slots = $schedule->getSlots();
+					echo '</pre>';
+					
+					$form = '<form method="post">';
+					$form .= '<input type="hidden" name="schedule_id" value="' . $schedule_id . '" />';
+					$form .= '<input type="submit" value="Create" />';
+					
+					$startTime = strtotime($schedule->getStartTime());
+					$endTime = strtotime($schedule->getEndTime());
+					
+					for($i = $startTime; $i <= $endTime; $i += 86400)
+					{
+						$form .= '<div style="float:left;">';
+						
+						$form .= '<p>' . date('Y-m-d', $i) . '</p>';
+						$form .= '<ul style="margin: 0 3em 0 0; list-style:none;">';
+						
+						for($j = 0; $j < 86400; $j = $j + $slotLength)
+						{
+							$timestamp = $i + $j;
+							$htmlHandle = 't_' . $timestamp;
+							$form .= '<li style="position:relative;"><input id="' . $htmlHandle . '" name="' . $htmlHandle . '" value="' . $timestamp . '" type="checkbox" ' . (isset($slots[$timestamp]) ? 'checked="checked" ' : '') . 'style="position:absolute; top:4px; left:-20px;"/><label for="' . $htmlHandle . '">' . date('H:i', $timestamp) . ' - ' . date('H:i', $timestamp + $slotLength) . '</label></li>';
+						}
+						
+						$form .= '</ul>';
+						
+						$form .= '</div>';
+					}
+					
+					$form .= '</form>';
+					
+					$return = $form;
+				}
 			}
 			else if(isset($_GET['remove']))
 			{

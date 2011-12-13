@@ -16,7 +16,13 @@ abstract class TS_AbstractSlot
 		$this->start = $start;
 		$this->duration = $duration;
 	}
-
+	
+	public function getID()
+	{
+		// return the duration of the schedule range
+		return $this->id;
+	}
+	
 	public function getDuration()
 	{
 		// return the duration of the schedule range
