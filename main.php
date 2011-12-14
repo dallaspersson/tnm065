@@ -412,16 +412,11 @@ class TimeSlot
 					$schedule = TS_Schedule::getSchedule($schedule_id);
 					$schedule = $schedule[0];
 					
-					echo '<pre>';
-					print_r($schedule);
-					
-					
 					$slots = $schedule->getSlots();
-					echo '</pre>';
 					
 					$form = '<form method="post">';
 					$form .= '<input type="hidden" name="schedule_id" value="' . $schedule_id . '" />';
-					$form .= '<input type="submit" value="Create" />';
+					$form .= '<div style="clear:both;"><input type="submit" value="Create" /></div>';
 					
 					$startTime = strtotime($schedule->getStartTime());
 					$endTime = strtotime($schedule->getEndTime());
@@ -444,7 +439,6 @@ class TimeSlot
 						
 						$form .= '</div>';
 					}
-					
 					$form .= '</form>';
 					
 					$return = $form;
