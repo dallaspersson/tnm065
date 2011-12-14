@@ -30,7 +30,7 @@ h1.big-date{
 }
 
 
-/* Calander */
+/* calendar */
 .today {
 	background-color:#1982D1;
 	color:white;
@@ -56,7 +56,7 @@ caption {
   margin-bottom:8px; 
 } 
  
-.calander-table td, .calander-table th { 
+.calendar-table td, .calendar-table th { 
   text-align:center; 
   vertical-align:middle; 
   width:36px; 
