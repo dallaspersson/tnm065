@@ -28,6 +28,9 @@ class TimeSlot
 	
 	public function __construct()
 	{
+		/*error_reporting(E_ALL);
+		ini_set('display_errors', '1');*/
+
 		add_shortcode('timeslot', array($this, 'shortcode'));
 		$this->plugin_dir = WP_PLUGIN_DIR . '/' . str_replace(basename( __FILE__), "", plugin_basename(__FILE__));
 		$this->plugin_url = WP_PLUGIN_URL . '/' . str_replace(basename( __FILE__), "", plugin_basename(__FILE__));
@@ -36,8 +39,233 @@ class TimeSlot
 	public function enqueue_my_styles()
 	{	
 		// Link css
-		$tmp_url = WP_PLUGIN_URL . '/' . str_replace(basename( __FILE__), "", plugin_basename(__FILE__));
-		wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+		$tmp_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+		//wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+
+		$a = new TimeSlot();
+
+		if ($a->is_mobile()) {
+			// Place code you wish to execute if browser is mobile here
+			wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-mobile.css');
+		}
+
+		else {
+			// Place code you wish to execute if browser is NOT mobile here
+			wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+			//wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-mobile.css');
+		}
+	}
+
+	public function enqueue_my_scripts()
+	{	
+		// Link css
+		$tmp_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+		//wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+
+		$tmp = new TimeSlot();
+
+		if ($tmp->is_mobile()) {
+			// Place code you wish to execute if browser is mobile here
+			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_mobile.js', array( 'jquery' ));
+		}
+
+		else {
+			// Place code you wish to execute if browser is NOT mobile here
+			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_mobile.js', array( 'jquery' ));
+		}
+	}
+
+	public function is_mobile() {
+
+		// Get the user agent
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+
+		// Create an array of known mobile user agents
+		// This list is from the 21 October 2010 WURFL File.
+		// Most mobile devices send a pretty standard string that can be covered by
+		// one of these.  I believe I have found all the agents (as of the date above)
+		// that do not and have included them below.  If you use this function, you 
+		// should periodically check your list against the WURFL file, available at:
+		// http://wurfl.sourceforge.net/
+
+
+		$mobile_agents = Array(
+
+
+			"240x320",
+			"acer",
+			"acoon",
+			"acs-",
+			"abacho",
+			"ahong",
+			"airness",
+			"alcatel",
+			"amoi",	
+			"android",
+			"anywhereyougo.com",
+			"applewebkit/525",
+			"applewebkit/532",
+			"asus",
+			"audio",
+			"au-mic",
+			"avantogo",
+			"becker",
+			"benq",
+			"bilbo",
+			"bird",
+			"blackberry",
+			"blazer",
+			"bleu",
+			"cdm-",
+			"compal",
+			"coolpad",
+			"danger",
+			"dbtel",
+			"dopod",
+			"elaine",
+			"eric",
+			"etouch",
+			"fly " ,
+			"fly_",
+			"fly-",
+			"go.web",
+			"goodaccess",
+			"gradiente",
+			"grundig",
+			"haier",
+			"hedy",
+			"hitachi",
+			"htc",
+			"huawei",
+			"hutchison",
+			"inno",
+			"ipad",
+			"ipaq",
+			"ipod",
+			"jbrowser",
+			"kddi",
+			"kgt",
+			"kwc",
+			"lenovo",
+			"lg ",
+			"lg2",
+			"lg3",
+			"lg4",
+			"lg5",
+			"lg7",
+			"lg8",
+			"lg9",
+			"lg-",
+			"lge-",
+			"lge9",
+			"longcos",
+			"maemo",
+			"mercator",
+			"meridian",
+			"micromax",
+			"midp",
+			"mini",
+			"mitsu",
+			"mmm",
+			"mmp",
+			"mobi",
+			"mot-",
+			"moto",
+			"nec-",
+			"netfront",
+			"newgen",
+			"nexian",
+			"nf-browser",
+			"nintendo",
+			"nitro",
+			"nokia",
+			"nook",
+			"novarra",
+			"obigo",
+			"palm",
+			"panasonic",
+			"pantech",
+			"philips",
+			"phone",
+			"pg-",
+			"playstation",
+			"pocket",
+			"pt-",
+			"qc-",
+			"qtek",
+			"rover",
+			"sagem",
+			"sama",
+			"samu",
+			"sanyo",
+			"samsung",
+			"sch-",
+			"scooter",
+			"sec-",
+			"sendo",
+			"sgh-",
+			"sharp",
+			"siemens",
+			"sie-",
+			"softbank",
+			"sony",
+			"spice",
+			"sprint",
+			"spv",
+			"symbian",
+			"tablet",
+			"talkabout",
+			"tcl-",
+			"teleca",
+			"telit",
+			"tianyu",
+			"tim-",
+			"toshiba",
+			"tsm",
+			"up.browser",
+			"utec",
+			"utstar",
+			"verykool",
+			"virgin",
+			"vk-",
+			"voda",
+			"voxtel",
+			"vx",
+			"wap",
+			"wellco",
+			"wig browser",
+			"wii",
+			"windows ce",
+			"wireless",
+			"xda",
+			"xde",
+			"zte"
+		);
+
+		// Pre-set $is_mobile to false.
+
+		$is_mobile = false;
+
+		// Cycle through the list in $mobile_agents to see if any of them
+		// appear in $user_agent.
+
+		foreach ($mobile_agents as $device) {
+
+			// Check each element in $mobile_agents to see if it appears in
+			// $user_agent.  If it does, set $is_mobile to true.
+
+			if (stristr($user_agent, $device)) {
+
+				$is_mobile = true;
+
+				// break out of the foreach, we don't need to test
+				// any more once we get a true value.
+
+				break;
+			}
+		}
+
+		return $is_mobile;
 	}
 	
 	public function shortcode()
@@ -214,8 +442,17 @@ class TimeSlot
 		
 		// Import XSL document
 		$xsl = new DOMDocument();
-		$xsl->load($this->plugin_dir."timeslot-html-screen.xsl");
-		
+
+		if ($this->is_mobile()) {
+			// Place code you wish to execute if browser is mobile here
+			$xsl->load($this->plugin_dir."timeslot-html-mobile.xsl");
+		}
+
+		else {
+			// Place code you wish to execute if browser is NOT mobile here
+			$xsl->load($this->plugin_dir."timeslot-html-screen.xsl");
+		}
+
 		// Create an XSLT processor and process the XML document
 		$parser = new XSLTProcessor();
 		$parser->importStyleSheet($xsl);
@@ -458,15 +695,22 @@ class TimeSlot
 		
 		return $return;
 	}
+
+	
 }
 
 
-add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
+
 
 // Ladda jQuery
 // Bortkommenterad för att den inte används.
-//wp_enqueue_script( 'jquery' );
+wp_enqueue_script( 'jquery' );
 
+// Ladda css
+add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
+
+// Ladda javascript
+add_action( 'wp_print_scripts', array('TimeSlot','enqueue_my_scripts'));
 
 // Instantiate a TimeSlot object in order to register shorthand code
 $timeslot = new TimeSlot();

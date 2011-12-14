@@ -1,74 +1,56 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exslt="http://exslt.org/common" xmlns:date="http://exslt.org/dates-and-times" 
     extension-element-prefixes="ex">
-    <xsl:param name="current_resource" />
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
-				<h2>Resources</h2>
 				<xsl:apply-templates select="resources" />
-				<a href="?resource&#38;add">Add resource</a>
 			</div>
 			<div class="calander-content">
-
-				<div class="calander">
-
-					<!-- Current month and year 
-					<h1 class="big-date">
-						<xsl:value-of select="date:month-name()"/>
-						<xsl:text> </xsl:text>
-						<xsl:value-of select="date:year()"/>
-					</h1>-->
-
-					<!-- Current status
-					<em>Current status?</em> -->
-
-					<xsl:call-template name="Calendar" />
-					
-				</div>
-
-				<div class="bookings">
-					<h2>Bookings</h2>
-					<!-- List bookings -->
-					<xsl:apply-templates select="bookings" />
-					<a href="?booking&#38;add&#38;resource_id={$current_resource}">New booking</a>
-				</div>
-
+				<xsl:call-template name="Calendar" />
+			</div>
+			<div class="bookings">
+				<xsl:apply-templates select="bookings" />
 			</div>
 		</div>
 	</xsl:template>
 
 
 
-	<!-- Template match -->
-
 	<xsl:template match="resources">
-		<xsl:for-each select="resource">
-			<xsl:choose>
-				<xsl:when test="id = $current_resource">
-					<xsl:element name="a">
-					  	<xsl:attribute name="href">
-					  		<!-- Link to correct schedual-->
-					  		?resource_id=<xsl:value-of select="id"/>
-					  	</xsl:attribute>
-		      			<p class="current-resource"><xsl:value-of select="resource-type"/></p>
-	      			</xsl:element>
-		      	</xsl:when>
-		      	<xsl:otherwise>
-		      		<xsl:element name="a">
-					  	<xsl:attribute name="href">
-					  		<!-- Link to correct schedual-->
-					  		?resource_id=<xsl:value-of select="id"/>
-					  	</xsl:attribute>
-		      			<p class="not-current-resource"><xsl:value-of select="resource-type"/></p>
-	      			</xsl:element>
-		      	</xsl:otherwise>
-	      	</xsl:choose>
-	      	<a href="?resource&#38;remove&#38;id={id}">Remove</a>
-	    </xsl:for-each>
-  	</xsl:template>
-
-  	<xsl:template match="resource">
-		<xsl:apply-templates />
+		<xsl:element name="form">
+			<xsl:attribute name="action">
+	  			<xsl:text>this.value</xsl:text>
+	  		</xsl:attribute>
+	  		<xsl:attribute name="method">
+	  			<xsl:text>get</xsl:text>
+	  		</xsl:attribute>
+			<xsl:element name="select">
+				<xsl:attribute name="id">
+		    		<xsl:text>dropdown</xsl:text>
+		    	</xsl:attribute>
+				<xsl:attribute name="resource_drop" />
+				<xsl:for-each select="resource">
+				  	<xsl:element name="option">
+				  		<xsl:attribute name="value">
+				  			<xsl:text>?resource_id=</xsl:text><xsl:value-of select="id"/>
+				  		</xsl:attribute>
+				  		<xsl:value-of select="resource-type"/>
+				  	</xsl:element>
+			    </xsl:for-each>
+		    </xsl:element>
+		    <!-- Button -->
+		    <xsl:element name="input">
+		    	<xsl:attribute name="id">
+		    		<xsl:text>dropdown_button</xsl:text>
+		    	</xsl:attribute>
+		    	<xsl:attribute name="type">
+		    		<xsl:text>submit</xsl:text>
+		    	</xsl:attribute>
+		    	<xsl:attribute name="value">
+		    		<xsl:text>Submit</xsl:text>
+		    	</xsl:attribute>
+		    </xsl:element>
+		</xsl:element>
   	</xsl:template>
 
   	<xsl:template match="bookings">
@@ -80,7 +62,7 @@
 			</xsl:variable>
 
 				<div class="fat-bottom">
-					<div class="tight">
+					<div class="left-booking">
 						<xsl:apply-templates select="booked-slots"/><br />
 
 						<!-- Print user --> 
@@ -105,7 +87,7 @@
 					</div>
 
 
-					<div class="booking-button-right">
+					<div class="right-booking">
 						<!-- Remove button -->
 						<a href="?booking&#38;remove&#38;booking_id={id}">Remove</a>
 					</div>
@@ -124,7 +106,7 @@
 
 
 
-  	<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
+	<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
   	<xsl:variable name="DisplayDate" select="date:date()"/> 
   	<xsl:variable name="Today" select="date:day-in-month()"/> 
 	<xsl:variable name="Year" select="date:year($DisplayDate)"/> 
@@ -223,9 +205,9 @@
 							<xsl:choose>
 								<!-- If today -->
 								<xsl:when test="$day = $Today">
-									<div class="today">
+									<!--<div class="today">
 										<p>Today</p>
-									</div>
+									</div>-->
 									<strong>
 										<xsl:value-of select="$day" /> 
 									</strong>
@@ -246,6 +228,5 @@
 	    </xsl:otherwise> 
 	  </xsl:choose> 
 	</xsl:template>
-
   	
 </xsl:stylesheet>

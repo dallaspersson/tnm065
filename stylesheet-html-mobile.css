@@ -1,0 +1,76 @@
+
+
+em {
+  color: gray;
+}
+
+h1.big-date{
+  font-size:28px;
+  margin-bottom:0px;
+}
+
+.comment-text {
+  font-size:12px;
+}
+
+/* Resources list */
+.left-booking {
+  line-height:80%;
+  width: 70%;
+  max-width: 70%;
+  float:left;
+}
+
+.right-booking {
+  text-align:right;
+}
+
+.fat-bottom {
+  margin-bottom:12px;
+}
+
+
+/* Calander */
+.today {
+	background-color:#1982D1;
+	color:white;
+	position:absolute;
+	left:0px;
+	top:0px;
+	font-size:11px;
+	width:100%;
+}
+
+td .cell-link {
+	height:100%;
+	width:100%;
+	padding: 12px 0px 12px 0px;
+}
+table { 
+  border:1px solid #CCC; 
+  border-collapse: collapse; 
+} 
+caption { 
+  font-weight:bold; 
+  font-size:120%; 
+  margin-bottom:8px; 
+} 
+ 
+.calander-table td, .calander-table th { 
+  text-align:center; 
+  vertical-align:middle; 
+  width:36px; 
+  height:34px; 
+  border:1px solid #CCC; 
+  padding:0; 
+  position:relative;
+  
+} 
+ 
+th { 
+  height:inherit; 
+} 
+ 
+.empty { 
+  background-color:#EEE; 
+}
