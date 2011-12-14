@@ -25,11 +25,14 @@
 	  			<xsl:text>get</xsl:text>
 	  		</xsl:attribute>
 			<xsl:element name="select">
+				<xsl:attribute name="id">
+		    		<xsl:text>dropdown</xsl:text>
+		    	</xsl:attribute>
 				<xsl:attribute name="resource_drop" />
 				<xsl:for-each select="resource">
 				  	<xsl:element name="option">
 				  		<xsl:attribute name="value">
-				  			?resource_id=<xsl:value-of select="id"/>
+				  			<xsl:text>?resource_id=</xsl:text><xsl:value-of select="id"/>
 				  		</xsl:attribute>
 				  		<xsl:value-of select="resource-type"/>
 				  	</xsl:element>
@@ -37,6 +40,9 @@
 		    </xsl:element>
 		    <!-- Button -->
 		    <xsl:element name="input">
+		    	<xsl:attribute name="id">
+		    		<xsl:text>dropdown_button</xsl:text>
+		    	</xsl:attribute>
 		    	<xsl:attribute name="type">
 		    		<xsl:text>submit</xsl:text>
 		    	</xsl:attribute>

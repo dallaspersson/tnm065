@@ -56,6 +56,25 @@ class TimeSlot
 		}
 	}
 
+	public function enqueue_my_scripts()
+	{	
+		// Link css
+		$tmp_url = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
+		//wp_enqueue_style( 'stylesheet-html-screen', $tmp_url . 'stylesheet-html-screen.css');
+
+		$tmp = new TimeSlot();
+
+		if ($tmp->is_mobile()) {
+			// Place code you wish to execute if browser is mobile here
+			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_mobile.js', array( 'jquery' ));
+		}
+
+		else {
+			// Place code you wish to execute if browser is NOT mobile here
+			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_mobile.js', array( 'jquery' ));
+		}
+	}
+
 	public function is_mobile() {
 
 		// Get the user agent
@@ -552,13 +571,18 @@ class TimeSlot
 	
 }
 
-add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
+
 
 
 // Ladda jQuery
 // Bortkommenterad för att den inte används.
-//wp_enqueue_script( 'jquery' );
+wp_enqueue_script( 'jquery' );
 
+// Ladda css
+add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
+
+// Ladda javascript
+add_action( 'wp_print_scripts', array('TimeSlot','enqueue_my_scripts'));
 
 // Instantiate a TimeSlot object in order to register shorthand code
 $timeslot = new TimeSlot();
