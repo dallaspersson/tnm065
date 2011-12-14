@@ -29,7 +29,8 @@
 				<div class="bookings">
 					<h2>Bookings</h2>
 					<!-- List bookings -->
-					<xsl:apply-templates select="bookings" />
+					<xsl:apply-templates select="slots" />
+					<!--<xsl:apply-templates select="bookings" />-->
 					<a href="?booking&#38;add&#38;resource_id={$current_resource}">New booking</a>
 				</div>
 
@@ -72,56 +73,18 @@
   	</xsl:template>
 
   	<xsl:template match="bookings">
-  		<!-- Loop through all bookings -->
-		<xsl:for-each select="booking">
+  		<!-- Loop through all slots -->
 
-			<xsl:variable name="current_user_id">
-				<xsl:value-of select="user-id" />
-			</xsl:variable>
-
-				<div class="fat-bottom">
-					<div class="tight">
-						<xsl:apply-templates select="booked-slots"/><br />
-
-						<!-- Print user --> 
-						<em class="comment-text">
-							<xsl:for-each select="/timeslot/users/user">
-								<xsl:choose>
-									<xsl:when test="id = $current_user_id">
-										<xsl:value-of select="firstname" />
-										<xsl:text> </xsl:text>
-										<xsl:value-of select="lastname" />
-									</xsl:when>
-									<xsl:otherwise>
-										<xsl:value-of select="$current_user_id"/> 
-										<xsl:value-of select="id" />
-									</xsl:otherwise>
-								</xsl:choose>
-								
-							</xsl:for-each>
-						</em>
-
-						
-					</div>
-
-
-					<div class="booking-button-right">
-						<!-- Remove button -->
-						<a href="?booking&#38;remove&#38;booking_id={id}">Remove</a>
-					</div>
-
-				</div>
-			
-		</xsl:for-each>
   	</xsl:template>
 
-  	<xsl:template match="booked-slots">
-		<xsl:for-each select="slot-id">
-			<xsl:text>Slot </xsl:text>
-			<xsl:apply-templates />
-		</xsl:for-each>
+  	<xsl:template match="slots">
+  		<!-- Loop through all slots -->
+  		<xsl:for-each select="slot">
+  			<div>
+  				<xsl:value-of select="time-range/@start" />
+  			</div>
+  		</xsl:for-each>
   	</xsl:template>
-
 
 
   	<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
