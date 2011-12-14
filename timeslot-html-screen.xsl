@@ -8,9 +8,9 @@
 				<xsl:apply-templates select="resources" />
 				<a href="?resource&#38;add">Add resource</a>
 			</div>
-			<div class="calander-content">
+			<div class="calendar-content">
 
-				<div class="calander">
+				<div class="calendar">
 
 					<!-- Current month and year 
 					<h1 class="big-date">
@@ -87,7 +87,8 @@
   	</xsl:template>
 
 
-  	<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
+
+  	<!-- Code for the calendar (call with <xsl:call-template name="Calendar" />) -->
   	<xsl:variable name="DisplayDate" select="date:date()"/> 
   	<xsl:variable name="Today" select="date:day-in-month()"/> 
 	<xsl:variable name="Year" select="date:year($DisplayDate)"/> 
@@ -127,7 +128,7 @@
 	</xsl:template> 
 
 	<xsl:template name="Calendar"> 
-	  <table class="calander-table" summary="Monthly calendar"> 
+	  <table class="calendar-table" summary="Monthly calendar"> 
 	    <caption> 
     		<h1 class="big-date">
 				<xsl:value-of select="$MonthName" /> 

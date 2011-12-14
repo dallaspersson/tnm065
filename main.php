@@ -619,28 +619,74 @@ class TimeSlot
 					echo '<pre>';
 					print_r($_POST);
 					
-					// Separate the slots to add
-					$slots = array();
+					// Create an array of slots that were checked in the form
+					$formSlots = array();
 					while($post = current($_POST))
 					{
 						$key = key($_POST);
 						if(substr($key, 0, 2) == 't_')
-							$slots[$key] = $_POST[$key];
+							$formSlots[$key] = $_POST[$key];
 						
 						next($_POST);
 					}
-					print_r($slots);
+					print_r($formSlots);
+					
+					// Create an array of the slots already in database
+					if(isset($_POST['dbSlots']))
+						$dbSlots = explode(',', $_POST['dbSlots']);
+					print_r($dbSlots);
+					
 					echo '</pre>';
 					
-					foreach($slots as $slot)
+					foreach($formSlots as $formSlot)
 					{
-						// Create a slot object
-						$aSlot = new TS_Slot($slot, $slotLength);
-						
-						// Save the slot object
-						echo $aSlot->save($_POST['schedule_id']) . '<br/>';
+						if(isset($dbSlots))
+						{
+							// If the slot is in both the database and form slots then do nothing
+							if(in_array($formSlot, $dbSlots, true))
+							{
+								// Remove corresponding element from $dbSlots
+								unset($dbSlots[array_search($formSlot,$dbSlots, true)]);
+							}
+							// If a slot exists among the form slots but not the database slots
+							// it needs to be added to the database
+							else if(!in_array($formSlot, $dbSlots, true))
+							{
+								// Create a slot object
+								$slot = new TS_Slot($formSlot, $slotLength);
+								
+								// Save the slot object
+								$slot->save($_POST['schedule_id']);
+							}
+						}
+						else
+						{
+							// Create a slot object
+							$slot = new TS_Slot($formSlot, $slotLength);
+								
+							// Save the slot object
+							$slot->save($_POST['schedule_id']);
+						}
 					}
 					
+					// Get the schedule with given ID
+					// NOTE: This could be done in a better way?
+					$scheduleID = $_POST['schedule_id'];
+					$schedule = TS_Schedule::getSchedule($scheduleID);
+					$schedule = $schedule[0];
+					$slots = $schedule->getSlots();
+					
+					// Remove the slots that weren't checked in the form, didn't
+					// exist among the form slots, and therefore weren't removed
+					// from the $dbSlots array
+					if(!empty($slots) && isset($dbSlots))
+					{
+						foreach($dbSlots as $dbSlot)
+						{
+							$slot = $slots[$dbSlot];
+							$schedule->removeSlot($slot->getID());
+						}
+					}
 				}
 				else if(isset($_GET['schedule_id']))
 				{
@@ -653,6 +699,21 @@ class TimeSlot
 					
 					$form = '<form method="post">';
 					$form .= '<input type="hidden" name="schedule_id" value="' . $schedule_id . '" />';
+					
+					// Add timestamps that existed before edit so we can detect deletions
+					if(!empty($slots))
+					{
+						$form .= '<input type="hidden" name="dbSlots" value="';
+						foreach($slots as $timestamp => $slot)
+							$form .= $timestamp . ',';
+							
+						// Remove the trailing slash
+						$form = substr($form, 0, -1);
+						
+						// Close <input> tag
+						$form .= '" />';
+					}
+					
 					$form .= '<div style="clear:both;"><input type="submit" value="Create" /></div>';
 					
 					$startTime = strtotime($schedule->getStartTime());
@@ -669,7 +730,8 @@ class TimeSlot
 						{
 							$timestamp = $i + $j;
 							$htmlHandle = 't_' . $timestamp;
-							$form .= '<li style="position:relative;"><input id="' . $htmlHandle . '" name="' . $htmlHandle . '" value="' . $timestamp . '" type="checkbox" ' . (isset($slots[$timestamp]) ? 'checked="checked" ' : '') . 'style="position:absolute; top:4px; left:-20px;"/><label for="' . $htmlHandle . '">' . date('H:i', $timestamp) . ' - ' . date('H:i', $timestamp + $slotLength) . '</label></li>';
+							$isChecked = isset($slots[$timestamp]) ? 'checked="checked" ' : null;
+							$form .= '<li style="position:relative;"><input id="' . $htmlHandle . '" name="' . $htmlHandle . '" value="' . $timestamp . '" type="checkbox" ' . $isChecked . 'style="position:absolute; top:4px; left:-20px;"/><label for="' . $htmlHandle . '">' . date('H:i', $timestamp) . ' - ' . date('H:i', $timestamp + $slotLength) . '</label></li>';
 						}
 						
 						$form .= '</ul>';

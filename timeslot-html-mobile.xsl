@@ -5,7 +5,7 @@
 			<div class="resources">
 				<xsl:apply-templates select="resources" />
 			</div>
-			<div class="calander-content">
+			<div class="calendar-content">
 				<xsl:call-template name="Calendar" />
 			</div>
 			<div class="bookings">
@@ -106,7 +106,7 @@
 
 
 
-	<!-- Code for the calander (call with <xsl:call-template name="Calendar" />) -->
+	<!-- Code for the calendar (call with <xsl:call-template name="Calendar" />) -->
   	<xsl:variable name="DisplayDate" select="date:date()"/> 
   	<xsl:variable name="Today" select="date:day-in-month()"/> 
 	<xsl:variable name="Year" select="date:year($DisplayDate)"/> 
@@ -146,7 +146,7 @@
 	</xsl:template> 
 
 	<xsl:template name="Calendar"> 
-	  <table class="calander-table" summary="Monthly calendar"> 
+	  <table class="calendar-table" summary="Monthly calendar"> 
 	    <caption> 
     		<h1 class="big-date">
 				<xsl:value-of select="$MonthName" /> 

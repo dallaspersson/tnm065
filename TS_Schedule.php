@@ -32,7 +32,10 @@ class TS_Schedule extends TS_AbstractSlot
 	
 	public function getSlots()
 	{
-		$query = 'SELECT timeslot_slots.id, timeslot_slots.start, timeslot_slots.duration FROM timeslot_slots, timeslot_schedules_slots WHERE timeslot_slots.id = timeslot_schedules_slots.slot_id AND timeslot_schedules_slots.schedule_id = ' . $this->id;
+		$query = 'SELECT timeslot_slots.id, timeslot_slots.start, timeslot_slots.duration
+					FROM timeslot_slots, timeslot_schedules_slots
+					WHERE timeslot_slots.id = timeslot_schedules_slots.slot_id
+					AND timeslot_schedules_slots.schedule_id = ' . $this->id;
 		
 		$results = TS_WordpressDatabaseConnector::query($query);
 		
@@ -42,6 +45,34 @@ class TS_Schedule extends TS_AbstractSlot
 			$slots[strtotime($result->start)] = new TS_Slot($result->start, $result->duration, $result->id);
 		
 		return $slots;
+	}
+	
+	public function removeSlot($id)
+	{
+		$query = 'SELECT timeslot_slots.id, timeslot_slots.start, timeslot_slots.duration
+					FROM timeslot_slots, timeslot_schedules_slots
+					WHERE timeslot_slots.id = timeslot_schedules_slots.slot_id
+					AND timeslot_schedules_slots.slot_id = ' . $id;
+		
+		$results = TS_WordpressDatabaseConnector::query($query);
+		
+		echo '<pre>';
+		print_r($results);
+		echo 'sizeof($results): ' . sizeof($results);
+		echo '</pre>';
+		
+		$schedulesConnectedToSlots = sizeof($results);
+		
+		if($schedulesConnectedToSlots == 1)
+			TS_Slot::delete($id);
+		else if($schedulesConnectedToSlots > 1)
+		{
+			$query = 'DELETE FROM timeslot_schedules_slots
+					WHERE slot_id = ' . $id . ' 
+					AND schedule_id = ' . $this->id;
+			
+			$results = TS_WordpressDatabaseConnector::query($query);
+		}
 	}
 	
 	public function setNotes($notes)

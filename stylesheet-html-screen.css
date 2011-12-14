@@ -1,5 +1,5 @@
 .resources,
-.calander-content {
+.calendar-content {
 	border:solid 2px #000000;
 	padding: 0px 0px 0px 0px;
 }
@@ -21,7 +21,7 @@
 	color: gray;
 }
 
-.calander-content {
+.calendar-content {
 	width: 78%;
 	max-width: 78%;
 	float:right;
@@ -29,7 +29,7 @@
 	height: 100%;
 }
 
-.calander {
+.calendar {
 	float:left;
 	width:65%;
 }
@@ -76,7 +76,7 @@ h1.big-date{
 	width: 100%;
 }
 
-/* Calander */
+/* calendar */
 .today {
 	background-color:#1982D1;
 	color:white;
@@ -102,7 +102,7 @@ table {
     margin-bottom:8px; 
   } 
    
-  .calander-table td, .calander-table th { 
+  .calendar-table td, .calendar-table th { 
     text-align:center; 
     vertical-align:middle; 
     width:36px; 
