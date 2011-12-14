@@ -42,18 +42,39 @@ class TS_Slot extends TS_AbstractSlot
 			// Try to add slot to database and connect it to a schedule.
 			// Delete the slot if not able to connect to schedule.
 			if($this->id = TS_WordpressDatabaseConnector::insert("timeslot_slots", $args))
+			{
 				if($result = TS_WordpressDatabaseConnector::insert("timeslot_schedules_slots", array('schedule_id' => $schedule_id, 'slot_id' => $this->id)))
 					return $this->id;
 				else
 				{
-					echo $result;
 					$this->delete($this->id);
 				}
+			}
+			else
+			{
+				// Create an array with conditions that will look for the unique pair
+				// that start and duration make up
+				$cond = array(
+								'start' => "'" . date('Y-m-d H:i:s', $this->start) . "'",
+								'duration' => $this->duration
+							);
+				
+				// Try to find the slot in the database
+				$slot = TS_Slot::getSlots($cond);
+				
+				// If the slot was found then create a relation between
+				// the slot and the schedule
+				if(sizeof($slot) == 1)
+					TS_WordpressDatabaseConnector::insert("timeslot_schedules_slots", array('schedule_id' => $schedule_id, 'slot_id' => $slot[0]->id));
+			}
 		}
 		else
 		{
-			//$args = array('user_id' => $this->user, 'resource_id' => $this->resource, 'start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
-			$args = array('start' => date("Y-m-d H:i:s", $this->start), 'duration' => $this->duration);
+			// Create an argument array with data to store into database
+			$args = array(
+							'start' => date("Y-m-d H:i:s", $this->start),
+							'duration' => $this->duration
+						);
 			
 			// Try to add slot to database
 			if($this->id = TS_WordpressDatabaseConnector::insert("timeslot_slots", $args))
