@@ -548,9 +548,13 @@ class TimeSlot
 		{
 			if(isset($_GET['add']))
 			{
-				if(isset($_POST['resource_name']))
+				if(isset($_POST['resource_name']) && isset($_POST['schedule_id']))
 				{
-					$resource = new TS_Resource($_POST['resource_name']);
+					$resource = new TS_Resource($_POST['resource_name'], $_POST['schedule_id']);
+					
+					echo '<pre>';
+					print_r($resource);
+					echo '</pre>';
 					
 					$resource->save() or die('TS_Resource::save() failed!');
 					
@@ -559,9 +563,18 @@ class TimeSlot
 				else
 				{
 					$form = '<form method="post">
-				 					<input type="text" name="resource_name"/>
-				 					<input type="submit" value="Create"/>
-								</form>';
+				 					<input type="text" name="resource_name"/>';
+				 	
+				 	// Create list of schedules
+				 	$schedules = TS_Schedule::getSchedule();
+				 	$form .= '<select name="schedule_id">';
+				 	foreach($schedules as $schedule)
+				 		$form .= '<option value="' . $schedule->getID() . '">id: ' . $schedule->getID() . '</option>';
+				 	$form .= '</select>';
+				 	
+				 	
+				 	$form .= '<input type="submit" value="Create"/>';
+					$form .= '</form>';
 					
 					$return = $form;
 				}

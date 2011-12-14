@@ -144,3 +144,39 @@ CREATE TABLE IF NOT EXISTS `timeslot_schedules_slots` (
 
 ALTER TABLE `timeslot_slots`
 ADD UNIQUE `unique_start_duration` (`start`, `duration`);
+
+-- ----------------------------
+
+--
+-- Create relation table between timeslot_resources and timeslot_schedules
+--
+
+CREATE TABLE IF NOT EXISTS `timeslot_schedules_resources` (
+	`schedule_id` int(11) NOT NULL,
+	`resource_id` int(11) NOT NULL,
+	UNIQUE `unique_resource_schedule` (`schedule_id`, `resource_id`),
+	CONSTRAINT `timeslot_schedules_fk1`
+		FOREIGN KEY (`schedule_id`)
+		REFERENCES `timeslot_schedules` (`id`)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	CONSTRAINT `timeslot_resources_fk1`
+		FOREIGN KEY (`resource_id`)
+		REFERENCES `timeslot_resources` (`id`)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- -----------------------------------
+
+--
+-- Add schedule_id to timeslot_resources
+--
+
+ALTER TABLE `timeslot_resources`
+	ADD COLUMN `schedule_id` int(11),
+	ADD CONSTRAINT `timeslot_schedule_id_in_resources`
+	FOREIGN KEY (`schedule_id`)
+	REFERENCES `timeslot_schedules` (`id`)
+	ON UPDATE CASCADE
+	ON DELETE CASCADE;

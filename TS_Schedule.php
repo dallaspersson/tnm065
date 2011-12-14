@@ -80,7 +80,7 @@ class TS_Schedule extends TS_AbstractSlot
 		$this->notes = $notes;
 	}
 	
-	public static function getSchedule($id)
+	public static function getSchedule($id = null)
 	{
 		$args = array('id', 'start', 'duration');
 		$cond = array();
@@ -91,8 +91,12 @@ class TS_Schedule extends TS_AbstractSlot
 		
 		foreach($schedules as $schedule)
 		{
-			if($schedule->id == $id)
+			if(isset($id) && $schedule->id == $id)
+			{
 				$return = array_merge($return, array(new TS_Schedule($schedule->start, $schedule->duration, $schedule->id)));
+			}
+			
+			$return = array_merge($return, array(new TS_Schedule($schedule->start, $schedule->duration, $schedule->id)));
 		}
 		
 		return $return;
