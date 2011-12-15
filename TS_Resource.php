@@ -15,20 +15,20 @@ class TS_Resource
 	
 	public static function getResources($id = null)
 	{
-		if($id)
+		if(!empty($id))
 		{
-			$results = $GLOBALS['wpdb']->get_results("SELECT id, name FROM timeslot_resources WHERE id = " . $id);
+			$results = $GLOBALS['wpdb']->get_results("SELECT id, name, schedule_id FROM timeslot_resources WHERE id = " . $id);
 
-			$resources = new TS_Resource($results[0]->name, $results[0]->id);
+			$resources = new TS_Resource($results[0]->name, $results[0]->schedule_id, $results[0]->id);
 		}
 		else
 		{
-			$results = $GLOBALS['wpdb']->get_results("SELECT id, name FROM timeslot_resources");
-		
+			$results = $GLOBALS['wpdb']->get_results("SELECT id, name, schedule_id FROM timeslot_resources");
+			
 			$resources = array();
 			
 			foreach($results as $result)
-				$resources = array_merge($resources, array(new TS_Resource($result->name, $result->id)));
+				$resources = array_merge($resources, array(new TS_Resource($result->name, $results->schedule_id, $result->id)));
 		}
 		
 		return $resources;

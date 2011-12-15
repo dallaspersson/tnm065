@@ -339,7 +339,7 @@ class TimeSlot
 		 *	<!ELEMENT slots (slot*)>
 		 *	<!ELEMENT slot (id,time-range)>
 		 */
-		
+/*		
 		$slots = TS_Slot::getSlots();
 		
 		$slots_element = $xml->createElement("slots");
@@ -362,12 +362,7 @@ class TimeSlot
 			
 			$slot_element->appendChild($time_range_element);
 		}
-
-
-		$return.= '<id/>';
-		$return.= '<time-range start="" end="" status=""/>';
-
-
+*/
 		/* ---------------------------------------- */
 		
 		/**
@@ -411,7 +406,60 @@ class TimeSlot
 			}
 		}
 		
-		/* ---------------------------------------- */	
+		/* ---------------------------------------- */
+		
+		/**
+		 *	This should retrieve all slots from the database.
+		 *	A slot is a time-range which specifies availability.
+		 *
+		 *	<!ELEMENT slots (slot*)>
+		 *	<!ELEMENT slot (id,time-range)>
+		 */
+		
+		$schedules = TS_Schedule::getSchedule();
+		
+		$schedules_element = $xml->createElement("schedules");
+		$timeslot_element->appendChild($schedules_element);
+		
+		foreach($schedules as $schedule)
+		{
+			// Create a "schedule" element to contain all info about a resource
+			$schedule_element = $xml->createElement("schedule");
+			// Append the "schedule" element to the "schedules" element
+			$schedules_element->appendChild($schedule_element);
+			
+			// Create and append data elements to the "schedule" element
+			$schedule_element->appendChild( $xml->createElement("id", $schedule->getID()) );
+			
+			$time_range_element = $xml->createElement("time-range");
+			$time_range_element->setAttribute("start", $schedule->getStartTime());
+			$time_range_element->setAttribute("end", $schedule->getEndTime());
+			$time_range_element->setAttribute("status", "default");
+			
+			$schedule_element->appendChild($time_range_element);
+			
+			$slots_element = $xml->createElement('slots');
+			$schedule_element->appendChild($slots_element);
+			
+			$slots = $schedule->getSlots();
+			
+			foreach($slots as $slot)
+			{
+				$slot_element = $xml->createElement('slot');
+				$slots_element->appendChild($slot_element);
+				
+				$slot_element->appendChild( $xml->createElement('id', $slot->getID()) );
+				
+				$time_range_element = $xml->createElement("time-range");
+				$time_range_element->setAttribute("start", $slot->getStartTime());
+				$time_range_element->setAttribute("end", $slot->getEndTime());
+				$time_range_element->setAttribute("status", "default");
+			
+				$slot_element->appendChild($time_range_element);
+			}
+		}
+
+		/* ---------------------------------------- */
 /**
  *	NOT STARTED CODE BELOW - Move up when in progress
  */

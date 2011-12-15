@@ -1,4 +1,4 @@
-<!ELEMENT timeslot (resources|users|slots|bookings|allowances)*>
+<!ELEMENT timeslot (resources|users|bookings|schedules)*>
 
 <!ELEMENT resources (resource+)>
 <!ELEMENT resource (id, resource-type, description?)>
@@ -12,6 +12,9 @@
 
 <!ELEMENT slots (slot*)>
 <!ELEMENT slot (id,time-range)>
+<!ATTLIST time-range start CDATA #REQUIRED>
+<!ATTLIST time-range end CDATA #REQUIRED>
+<!ATTLIST time-range status CDATA #IMPLIED>
 
 <!ELEMENT booked-slots (slot-id+)>
 <!ELEMENT slot-id (#PCDATA)>
@@ -38,13 +41,11 @@
 <!ELEMENT role (#PCDATA)>
 <!ELEMENT resource-id (#PCDATA)>
 
-
-<!ATTLIST time-range start CDATA #REQUIRED>
-<!ATTLIST time-range end CDATA #REQUIRED>
-<!ATTLIST time-range status CDATA #IMPLIED>
-
 <!ATTLIST period id ID #REQUIRED>
 <!ATTLIST period start CDATA #REQUIRED>
 <!ATTLIST period end CDATA #REQUIRED>
 
 <!ATTLIST time-used period-id IDREF #REQUIRED>
+
+<!ELEMENT schedules (schedule+)>
+<!ELEMENT schedule (id,time-range,slots)>

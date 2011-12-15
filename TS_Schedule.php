@@ -83,19 +83,16 @@ class TS_Schedule extends TS_AbstractSlot
 	public static function getSchedule($id = null)
 	{
 		$args = array('id', 'start', 'duration');
-		$cond = array();
 		
-		$schedules = TS_WordpressDatabaseConnector::select('timeslot_schedules', $args);
+		if(isset($id))
+			$cond = array('id' => $id);
+		
+		$schedules = TS_WordpressDatabaseConnector::select('timeslot_schedules', $args, $cond);
 		
 		$return = array();
 		
 		foreach($schedules as $schedule)
 		{
-			if(isset($id) && $schedule->id == $id)
-			{
-				$return = array_merge($return, array(new TS_Schedule($schedule->start, $schedule->duration, $schedule->id)));
-			}
-			
 			$return = array_merge($return, array(new TS_Schedule($schedule->start, $schedule->duration, $schedule->id)));
 		}
 		
