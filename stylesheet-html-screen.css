@@ -59,6 +59,14 @@ p {
 	margin-bottom:12px;
 }
 
+.slot-info {
+	line-height:80%;
+	width: 70%;
+	max-width: 70%;
+	float:left;
+	margin-bottom:12px;
+}
+
 em {
 	color: gray;
 }
