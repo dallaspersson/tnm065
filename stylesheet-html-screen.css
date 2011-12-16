@@ -67,6 +67,10 @@ p {
 	margin-bottom:12px;
 }
 
+.button-space-booking {
+	vertical-align:text-top;
+}
+
 em {
 	color: gray;
 }

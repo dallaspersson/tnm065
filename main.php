@@ -483,6 +483,14 @@ class TimeSlot
 					
 					$return = '<h2>Your booking is saved</h2>';
 				}
+				else if(isset($_GET['slot_id']) && isset($_GET['resource_id']))
+				{
+					$booking = new TS_Booking($_GET['slot_id'], $user->getID(), $_GET['resource_id']);
+					
+					$booking->save() or die('save');
+					
+					$return = '<h2>Your booking is saved</h2>';
+				}
 				else
 				{
 					$form = '<form method="post">

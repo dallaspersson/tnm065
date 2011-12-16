@@ -31,7 +31,7 @@
 					<!-- List bookings -->
 					<xsl:apply-templates select="slots" />
 					<!--<xsl:apply-templates select="bookings" />-->
-					<a href="?booking&#38;add&#38;resource_id={$current_resource}">New booking</a>
+					<!--<a href="?booking&#38;add&#38;resource_id={$current_resource}">New booking</a>-->
 				</div>
 
 			</div>
@@ -134,54 +134,57 @@
   				<xsl:value-of select="id" />
   			</xsl:variable> 
 
+			<!-- Find the booking, if it exists -->
+  			<xsl:variable name="user_id">
+					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
+  					<xsl:if test="slot-id = $current_slot_id">
+  						<xsl:value-of select="../user-id"/>
+  					</xsl:if>
+  				</xsl:for-each>
+			</xsl:variable>
+
   			<!-- Print start and end time -->
   			<div class="fat-bottom">
   				<div class="tight">
-					<xsl:value-of select="id" /><br />
+					<xsl:value-of select="time-range/@start" /> -
+					<xsl:value-of select="time-range/@end" /><br />
 					<!-- Print user --> 
 					<em class="comment-text">
-						oscar
+						<xsl:choose>
+		  					<!-- Not booked -->
+			  				<xsl:when test="$user_id = ''">
+			  					<xsl:text>Not booked</xsl:text>
+							</xsl:when>
+
+							<!-- Booked -->
+							<xsl:otherwise>
+								<xsl:for-each select="/timeslot/users/user">
+									<xsl:if test="$user_id = id">
+										<xsl:value-of select="firstname"/>
+										<xsl:text> </xsl:text>
+										<xsl:value-of select="lastname"/>
+									</xsl:if>
+								</xsl:for-each>
+							</xsl:otherwise>
+						</xsl:choose>
 					</em>
 				</div>
-	  			<!-- Find the booking, if it exists -->
-	  			<xsl:variable name="booking_flag">
-  					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
-	  					<xsl:if test="slot-id = $current_slot_id">
-	  						1
-	  					</xsl:if>
-	  					<xsl:if test="position() = last()">
-	  						<!--<xsl:choose>
-	  							<xsl:when test="$booking_flag = 1">
-	  								ja
-  								</xsl:when>
-  							</xsl:choose>-->
-	  					</xsl:if>
-	  			</xsl:for-each>
-  				</xsl:variable> 
+	  			
+  				<div class="right-booking">
+  				<!-- Check if user_id exists, if so the slot is booked. -->
+  				<xsl:choose>
+  					<!-- Not booked -->
+	  				<xsl:when test="$user_id = ''">
+	  					<a href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}">Book</a>
+					</xsl:when>
 
-  				<xsl:value-of select="$booking_flag"/>
-	  			<!--<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
-	  				<div class="booking-button-right">
-		  				<xsl:choose>
-		  					<xsl:when test="slot-id = $current_slot_id">
-		  						
-	  							remove
-		  						
-		  					</xsl:when>
-		  					<xsl:when test="slot-id != $current_slot_id">
-		  						
-	  							<xsl:if test="position() = 3">
-	  								sista
-	  							</xsl:if>
-		  						
-		  					</xsl:when>
-		  				</xsl:choose>
-		  				
-	  				</div>
-	  			</xsl:for-each>-->
-
+					<!-- Booked -->
+					<xsl:otherwise>
+						<a href="?booking&#38;remove&#38;booking_id={id}">Remove</a>
+					</xsl:otherwise>
+				</xsl:choose>
+				</div>
   			</div>
-
   		</xsl:for-each>
   	</xsl:template>
 
