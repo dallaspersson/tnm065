@@ -4,29 +4,31 @@ class TS_Resource
 {
 	private $id;
 	private $name;
+	private $schedules;
 	
-	public function __construct($name, $id = null)
+	public function __construct($name, $schedules, $id = null)
 	{
 		$this->id = $id;
 		$this->name = $name;
+		$this->schedules = $schedules;
 	}
 	
 	public static function getResources($id = null)
 	{
-		if($id)
+		if(!empty($id))
 		{
-			$results = $GLOBALS['wpdb']->get_results("SELECT id, name FROM timeslot_resources WHERE id = " . $id);
+			$results = $GLOBALS['wpdb']->get_results("SELECT id, name, schedule_id FROM timeslot_resources WHERE id = " . $id);
 
-			$resources = new TS_Resource($results[0]->name, $results[0]->id);
+			$resources = new TS_Resource($results[0]->name, $results[0]->schedule_id, $results[0]->id);
 		}
 		else
 		{
-			$results = $GLOBALS['wpdb']->get_results("SELECT id, name FROM timeslot_resources");
-		
+			$results = $GLOBALS['wpdb']->get_results("SELECT id, name, schedule_id FROM timeslot_resources");
+			
 			$resources = array();
 			
 			foreach($results as $result)
-				$resources = array_merge($resources, array(new TS_Resource($result->name, $result->id)));
+				$resources = array_merge($resources, array(new TS_Resource($result->name, $results->schedule_id, $result->id)));
 		}
 		
 		return $resources;
@@ -63,7 +65,7 @@ class TS_Resource
 	public function save()
 	{
 		// Build argument array for database connector
-		$args = array('name' => $this->name);
+		$args = array('name' => $this->name, 'schedule_id' => $this->schedules);
 
 		if(TS_WordpressDatabaseConnector::insert("timeslot_resources", $args))
 			return true;
