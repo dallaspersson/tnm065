@@ -30,8 +30,6 @@
 					<h2>Bookings</h2>
 					<!-- List bookings -->
 					<xsl:apply-templates select="slots" />
-					<!--<xsl:apply-templates select="bookings" />-->
-					<!--<a href="?booking&#38;add&#38;resource_id={$current_resource}">New booking</a>-->
 				</div>
 
 			</div>
