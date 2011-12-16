@@ -74,49 +74,6 @@
 
 
   	<xsl:template match="bookings">
-
-  		<!-- Loop through all bookings -->
-		<xsl:for-each select="booking">
-
-			<xsl:variable name="current_user_id">
-				<xsl:value-of select="user-id" />
-			</xsl:variable>
-
-			<div class="fat-bottom">
-				<div class="tight">
-					<!-- Find all booked slots for this user -->
-					<xsl:apply-templates select="booked-slots"/><br />
-
-					<!-- Print user --> 
-					<em class="comment-text">
-						<xsl:for-each select="/timeslot/users/user">
-							<xsl:choose>
-								<xsl:when test="id = $current_user_id">
-									<xsl:value-of select="firstname" />
-									<xsl:text> </xsl:text>
-									<xsl:value-of select="lastname" />
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="$current_user_id"/> 
-									<xsl:value-of select="id" />
-								</xsl:otherwise>
-							</xsl:choose>
-							
-						</xsl:for-each>
-					</em>
-
-					
-				</div>
-
-
-				<div class="booking-button-right">
-					<!-- Remove button -->
-					<a href="?booking&#38;remove&#38;booking_id={id}">Remove</a>
-				</div>
-
-			</div>
-			
-		</xsl:for-each>
   	</xsl:template>
 
   	<xsl:template match="booked-slots">
@@ -139,6 +96,14 @@
 					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
   					<xsl:if test="slot-id = $current_slot_id">
   						<xsl:value-of select="../user-id"/>
+  					</xsl:if>
+  				</xsl:for-each>
+			</xsl:variable>
+
+			<xsl:variable name="current_booking_id">
+					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
+  					<xsl:if test="slot-id = $current_slot_id">
+  						<xsl:value-of select="../id"/>
   					</xsl:if>
   				</xsl:for-each>
 			</xsl:variable>
@@ -180,7 +145,7 @@
 
 					<!-- Booked -->
 					<xsl:otherwise>
-						<a href="?booking&#38;remove&#38;booking_id={id}">Remove</a>
+						<a href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
 					</xsl:otherwise>
 				</xsl:choose>
 				</div>
