@@ -13,6 +13,11 @@
 	height: 100%;
 }
 
+.resources-scroll {
+	max-height:330px;
+	overflow-y:auto;
+}
+
 .current-resource {
 	color: black;
 }
@@ -45,7 +50,7 @@
 
 .bookings-scroll {
 	height:330px;
-	overflow-y:scroll;
+	overflow-y:auto;
 }
 
 p {

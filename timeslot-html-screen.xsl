@@ -5,8 +5,10 @@
 		<div class="body_content">
 			<div class="resources">
 				<h2>Resources</h2>
-				<xsl:apply-templates select="resources" />
-				<a href="?resource&#38;add">Add resource</a>
+				<div class="resources-scroll">
+					<xsl:apply-templates select="resources" />
+					<a href="?resource&#38;add">Add resource</a>
+				</div>
 			</div>
 			<div class="calendar-content">
 
