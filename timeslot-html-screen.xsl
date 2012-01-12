@@ -28,8 +28,11 @@
 
 				<div class="bookings">
 					<h2>Bookings</h2>
-					<!-- List bookings -->
-					<xsl:apply-templates select="slots" />
+
+					<div class="bookings-scroll">
+						<!-- List bookings -->
+						<xsl:apply-templates select="slots" />
+					</div>
 				</div>
 
 			</div>

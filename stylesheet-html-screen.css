@@ -41,7 +41,10 @@
 .bookings {
 	float:right;
 	width:34%;
-	height:360px;
+}
+
+.bookings-scroll {
+	height:330px;
 	overflow-y:scroll;
 }
 
