@@ -114,6 +114,14 @@ td .cell-link {
 	width:100%;
 	padding: 12px 0px 12px 0px;
 }
+
+td .cell-non-link {
+	height:100%;
+	width:100%;
+	padding: 12px 0px 12px 0px;
+	color:#1982d1;
+}
+
 table { 
     border:1px solid #CCC; 
     border-collapse: collapse; 
