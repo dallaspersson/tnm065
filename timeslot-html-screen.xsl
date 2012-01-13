@@ -4,8 +4,10 @@
 		<div class="body_content">
 			<div class="resources">
 				<h2>Resources</h2>
-				<xsl:apply-templates select="resources" />
-				<a href="?resource&#38;add">Add resource</a>
+				<div class="resources-scroll">
+					<xsl:apply-templates select="resources" />
+					<a href="?resource&#38;add">Add resource</a>
+				</div>
 			</div>
 			<div class="calendar-content">
 
@@ -27,8 +29,11 @@
 
 				<div class="bookings">
 					<h2>Bookings</h2>
-					<!-- List bookings -->
-					<xsl:apply-templates select="schedules" />
+
+					<div class="bookings-scroll">
+						<!-- List bookings -->
+						<xsl:apply-templates select="schedules" />
+					</div>
 				</div>
 
 			</div>
@@ -248,6 +253,34 @@
 	        </xsl:call-template> 
 	      </xsl:if> 
 	    </xsl:when> 
+
+	    <xsl:when test="$day &lt; $Today"> 
+				<td>
+				  	<div class="cell-non-link">
+						<xsl:choose>
+							<!-- If today -->
+							<xsl:when test="$day = $Today">
+								<div class="today">
+									<p>Today</p>
+								</div>
+								<strong>
+									<xsl:value-of select="$day" /> 
+								</strong>
+							</xsl:when>
+							<xsl:otherwise>
+							<xsl:value-of select="$day" /> 
+						</xsl:otherwise>
+						</xsl:choose>
+					</div>
+				</td> 
+	      <xsl:if test="$count &lt; 7"> 
+	        <xsl:call-template name="CalendarDay"> 
+	          <xsl:with-param name="count" select="$count + 1" /> 
+	          <xsl:with-param name="day" select="$day + 1" /> 
+	        </xsl:call-template> 
+	      </xsl:if> 
+	    </xsl:when>
+
 	    <xsl:otherwise> 
 				<td> 
 					<xsl:element name="a">

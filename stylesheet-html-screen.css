@@ -13,6 +13,11 @@
 	height: 100%;
 }
 
+.resources-scroll {
+	max-height:330px;
+	overflow-y:auto;
+}
+
 .current-resource {
 	color: black;
 }
@@ -41,6 +46,11 @@
 .bookings {
 	float:right;
 	width:34%;
+}
+
+.bookings-scroll {
+	height:330px;
+	overflow-y:auto;
 }
 
 p {
@@ -104,6 +114,14 @@ td .cell-link {
 	width:100%;
 	padding: 12px 0px 12px 0px;
 }
+
+td .cell-non-link {
+	height:100%;
+	width:100%;
+	padding: 12px 0px 12px 0px;
+	color:#1982d1;
+}
+
 table { 
     border:1px solid #CCC; 
     border-collapse: collapse; 
