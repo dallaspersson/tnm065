@@ -310,60 +310,6 @@ class TimeSlot
 
 		/* ---------------------------------------- */
 		
-		/**
-		 *	This should retrieve all users from the database.
-		 *
-		 *	<!ELEMENT user (firstname, lastname, e-mail, avatar?, id, role, user-allowances?)>
-		 */
-		
-		$user = new TS_User(wp_get_current_user());
-		
-		$users_element = $xml->createElement("users");
-		$timeslot_element->appendChild($users_element);
-		
-		$user_element = $xml->createElement("user");
-		$users_element->appendChild($user_element);
-		
-		$user_element->appendChild( $xml->createElement("firstname", $user->getFirstName()) );
-		$user_element->appendChild( $xml->createElement("lastname", $user->getLastName()) );
-		$user_element->appendChild( $xml->createElement("e-mail", "* marcus.stenbeck@gmail.com *") );
-		$user_element->appendChild( $xml->createElement("id", $user->getID()) );
-		$user_element->appendChild( $xml->createElement("role", "* The Bry Man *") );
-
-		/* ---------------------------------------- */
-		
-		/**
-		 *	This should retrieve all slots from the database.
-		 *	A slot is a time-range which specifies availability.
-		 *
-		 *	<!ELEMENT slots (slot*)>
-		 *	<!ELEMENT slot (id,time-range)>
-		 */
-/*		
-		$slots = TS_Slot::getSlots();
-		
-		$slots_element = $xml->createElement("slots");
-		$timeslot_element->appendChild($slots_element);
-		
-		foreach($slots as $slot)
-		{
-			// Create a "resource" element to contain all info about a resource
-			$slot_element = $xml->createElement("slot");
-			// Append the "resource" element to the "resources element
-			$slots_element->appendChild($slot_element);
-			
-			// Create and append data elements to the "resource" element
-			$slot_element->appendChild( $xml->createElement("id", $slot->getID()) );
-			
-			$time_range_element = $xml->createElement("time-range");
-			$time_range_element->setAttribute("start", date("H:i", strtotime($slot->getStartTime())));
-			$time_range_element->setAttribute("end", date("H:i", strtotime($slot->getEndTime())));
-			$time_range_element->setAttribute("status", "default");
-			
-			$slot_element->appendChild($time_range_element);
-		}
-*/
-		/* ---------------------------------------- */
 		
 		/**
 		 *	This should retrieve all bookings from the database.
@@ -406,6 +352,83 @@ class TimeSlot
 			}
 		}
 		
+		/* ---------------------------------------- */
+		
+		
+		/**
+		 *	This should retrieve all users from the database.
+		 *
+		 *	<!ELEMENT user (firstname, lastname, e-mail, avatar?, id, role, user-allowances?)>
+		 */
+		
+		// create an array with all user ids that have at least one booking
+		$usersWithBooking = array();
+		
+		foreach($bookings as $booking)
+		{
+			array_push($usersWithBooking, $booking->getUser());
+		}
+		
+		echo '<pre>';
+		echo '$usersWithBooking<br />';
+		print_r($usersWithBooking);
+		echo '</pre>';
+		
+		$users = TS_User::getUsers($usersWithBooking);
+		
+		echo '<pre>';
+		echo '$users<br />';
+		print_r($users);
+		echo '</pre>';
+		
+		$users_element = $xml->createElement("users");
+		$timeslot_element->appendChild($users_element);
+		
+		foreach($users as $user)
+		{
+			$user_element = $xml->createElement("user");
+			$users_element->appendChild($user_element);
+			
+			$user_element->appendChild( $xml->createElement("firstname", $user->user_firstname) );
+			$user_element->appendChild( $xml->createElement("lastname", $user->user_lastname) );
+			$user_element->appendChild( $xml->createElement("e-mail", $user->user_email) );
+			$user_element->appendChild( $xml->createElement("id", $user->ID) );
+			$user_element->appendChild( $xml->createElement("role", $user->user_level) );
+		}
+
+		/* ---------------------------------------- */
+		
+		/**
+		 *	This should retrieve all slots from the database.
+		 *	A slot is a time-range which specifies availability.
+		 *
+		 *	<!ELEMENT slots (slot*)>
+		 *	<!ELEMENT slot (id,time-range)>
+		 */
+/*		
+		$slots = TS_Slot::getSlots();
+		
+		$slots_element = $xml->createElement("slots");
+		$timeslot_element->appendChild($slots_element);
+		
+		foreach($slots as $slot)
+		{
+			// Create a "resource" element to contain all info about a resource
+			$slot_element = $xml->createElement("slot");
+			// Append the "resource" element to the "resources element
+			$slots_element->appendChild($slot_element);
+			
+			// Create and append data elements to the "resource" element
+			$slot_element->appendChild( $xml->createElement("id", $slot->getID()) );
+			
+			$time_range_element = $xml->createElement("time-range");
+			$time_range_element->setAttribute("start", date("H:i", strtotime($slot->getStartTime())));
+			$time_range_element->setAttribute("end", date("H:i", strtotime($slot->getEndTime())));
+			$time_range_element->setAttribute("status", "default");
+			
+			$slot_element->appendChild($time_range_element);
+		}
+*/
 		/* ---------------------------------------- */
 		
 		/**
