@@ -1,12 +1,18 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:date="http://exslt.org/dates-and-times">
     <xsl:param name="current_resource" />
+    <xsl:param name="current_user_level" />
+    <xsl:param name="current_user_id" />
+    
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
 				<h2>Resources</h2>
 				<div class="resources-scroll">
 					<xsl:apply-templates select="resources" />
-					<a href="?resource&#38;add">Add resource</a>
+					
+					<xsl:if test="$current_user_level &gt; -1">
+						<a href="?resource&#38;add">Add resource</a>
+					</xsl:if>
 				</div>
 			</div>
 			<div class="calendar-content">
@@ -66,7 +72,9 @@
 	      			</xsl:element>
 		      	</xsl:otherwise>
 	      	</xsl:choose>
-	      	<a href="?resource&#38;remove&#38;id={id}">Remove</a>
+	      	<xsl:if test="$current_user_level &gt; -1">
+	      		<a href="?resource&#38;remove&#38;id={id}">Remove</a>
+	      	</xsl:if>
 	    </xsl:for-each>
   	</xsl:template>
 
@@ -144,18 +152,27 @@
 				</div>
 	  			
   				<div class="right-booking">
-  				<!-- Check if user_id exists, if so the slot is booked. -->
-  				<xsl:choose>
-  					<!-- Not booked -->
-	  				<xsl:when test="$user_id = ''">
-	  					<a href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}">Book</a>
-					</xsl:when>
-
-					<!-- Booked -->
-					<xsl:otherwise>
-						<a href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
-					</xsl:otherwise>
-				</xsl:choose>
+  				<xsl:if test="$current_user_level &gt; -1">
+	  				<!-- Check if user_id exists, if so the slot is booked. -->
+	  				<xsl:choose>
+	  					<!-- Not booked -->
+		  				<xsl:when test="$user_id = ''">
+		  					<a href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}">Book</a>
+						</xsl:when>
+						
+						<!-- Booked -->
+						<xsl:otherwise>
+							<xsl:choose>
+								<xsl:when test="$user_id = $current_user_id">
+									<a href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
+								</xsl:when>
+								<xsl:otherwise>
+									Booked
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:if>
 				</div>
   			</div>
   		</xsl:for-each>

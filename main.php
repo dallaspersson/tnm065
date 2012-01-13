@@ -514,12 +514,13 @@ class TimeSlot
 		// Import XSL document
 		$xsl = new DOMDocument();
 
-		if ($this->is_mobile()) {
+		if ( $this->is_mobile() )
+		{
 			// Place code you wish to execute if browser is mobile here
 			$xsl->load($this->plugin_dir."timeslot-html-mobile.xsl");
 		}
-
-		else {
+		else
+		{
 			// Place code you wish to execute if browser is NOT mobile here
 			$xsl->load($this->plugin_dir."timeslot-html-screen.xsl");
 		}
@@ -527,7 +528,16 @@ class TimeSlot
 		// Create an XSLT processor and process the XML document
 		$parser = new XSLTProcessor();
 		$parser->importStyleSheet($xsl);
+		
+		// set parameters
 		$parser->setParameter('', 'current_resource', $resource_id);
+		
+		$current_user_level = wp_get_current_user()->user_level > -1 ? wp_get_current_user()->user_level : -1;
+		$parser->setParameter('', 'current_user_level', $current_user_level);
+		
+		$current_user_id = wp_get_current_user()->ID;
+		$parser->setParameter('', 'current_user_id', $current_user_id);
+		
 		$standardView = $parser->transformToXML($xml);
 		
 		// Validate XML file against it's DTD
