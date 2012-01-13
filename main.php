@@ -71,7 +71,7 @@ class TimeSlot
 
 		else {
 			// Place code you wish to execute if browser is NOT mobile here
-			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_mobile.js', array( 'jquery' ));
+			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_screen.js', array( 'jquery' ));
 		}
 	}
 
