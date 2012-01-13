@@ -451,8 +451,8 @@ class TimeSlot
 				$slot_element->appendChild( $xml->createElement('id', $slot->getID()) );
 				
 				$time_range_element = $xml->createElement("time-range");
-				$time_range_element->setAttribute("start", $slot->getStartTime());
-				$time_range_element->setAttribute("end", $slot->getEndTime());
+				$time_range_element->setAttribute("start", date("H:i", strtotime($slot->getStartTime())));
+				$time_range_element->setAttribute("end", date("H:i", strtotime($slot->getEndTime())));
 				$time_range_element->setAttribute("status", "default");
 			
 				$slot_element->appendChild($time_range_element);
