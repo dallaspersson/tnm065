@@ -148,12 +148,13 @@
   				<xsl:choose>
   					<!-- Not booked -->
 	  				<xsl:when test="$user_id = ''">
-	  					<a class="book_btn" id="{concat('slot',$current_slot_id)}" href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}">Book</a>
+	  					<!-- id="{concat('slot',$current_slot_id)}" -->
+	  					<a class="book_btn" id="{$current_slot_id}" href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}">Book</a>
 					</xsl:when>
 
 					<!-- Booked -->
 					<xsl:otherwise>
-						<a class="remove_btn" id="{concat('slot',$current_slot_id)}" href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
+						<a class="remove_btn" id="{$current_slot_id}" href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
 					</xsl:otherwise>
 				</xsl:choose>
 				</div>

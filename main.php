@@ -70,8 +70,18 @@ class TimeSlot
 		}
 
 		else {
-			// Place code you wish to execute if browser is NOT mobile here
-			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_screen.js', array( 'jquery' ));
+			// Embed the javascript file that makes the AJAX request
+			wp_enqueue_script( 'script_screen', $tmp_url . 'script_screen.js', array( 'jquery' ));
+
+			// declare the URL to the file that handles the AJAX request (wp-admin/admin-ajax.php)
+			wp_localize_script( 'script_screen', 'MyAjax', array( 'ajaxurl' => $tmp_url . 'TS_Ajax.php' ) );
+
+			// this hook is fired if the current viewer is not logged in
+			do_action( 'wp_ajax_nopriv_' . $_REQUEST['action'] );
+			 
+			// if logged in:
+			do_action( 'wp_ajax_' . $_POST['action'] );
+
 		}
 	}
 
@@ -267,9 +277,12 @@ class TimeSlot
 
 		return $is_mobile;
 	}
+
 	
 	public function shortcode()
 	{
+		add_action('admin_head', 'my_action_javascript');
+
 		if(isset($_GET['resource_id']))
 			$resource_id = $_GET['resource_id'];
 	
@@ -836,6 +849,7 @@ class TimeSlot
 // Ladda jQuery
 // Bortkommenterad för att den inte används.
 wp_enqueue_script( 'jquery' );
+
 
 // Ladda css
 add_action( 'wp_print_styles', array('TimeSlot','enqueue_my_styles'));
