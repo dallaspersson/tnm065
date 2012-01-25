@@ -284,8 +284,18 @@ class TimeSlot
 		add_action('admin_head', 'my_action_javascript');
 
 		if(isset($_GET['resource_id']))
-			$resource_id = $_GET['resource_id'];
-	
+			$current_resource_id = $_GET['resource_id'];
+		
+		// Retrieve selected date or set it to today
+		if(isset($_GET['ts_y']) && isset($_GET['ts_m']) && isset($_GET['ts_d']))
+		{
+			$selected_date = date('Y-m-d', mktime(0, 0, 0, $_GET['ts_m'], $_GET['ts_d'], $_GET['ts_y']));
+		}
+		else
+		{
+			$selected_date = date('Y-m-d');
+		}
+		
 		// Create an XML document with the Timeslot DTD
 		$implementation = new DOMImplementation();
 		$dtd = $implementation->createDocumentType('timeslot', '', $this->plugin_dir . 'timeslot.dtd');
@@ -294,6 +304,9 @@ class TimeSlot
 		$timeslot_element = $xml->createElement("timeslot");
 		$xml->appendChild($timeslot_element);
 
+		
+		// put the current user in a variable
+		$current_user = new TS_User(wp_get_current_user());
 
  		/**
  		 *	Get resources from database and put them in XML document.
@@ -320,8 +333,73 @@ class TimeSlot
 			$resource_element->appendChild( $xml->createElement("resource-type", $resource->getName()) );
 			$resource_element->appendChild( $xml->createElement("description", $resource->getName()) );
 		}
+		
+		if(!empty($resources))
+		{
+			// Put the current resource in a variable
+			if(isset($current_resource_id))
+			{
+				$current_resource = TS_Resource::getResources($current_resource_id);
+			}
+			else
+			{
+				$current_resource = TS_Resource::getResources($resources[0]->getID());
+			}
+		}
 
 		/* ---------------------------------------- */
+		
+		
+		/**
+		 *	This should retrieve all bookings from the database.
+		 *
+		 *	<!ELEMENT bookings (booking+)>
+		 *	<!ELEMENT booking (booked-slots, resource-id, user-id)>
+		 *	<!ELEMENT booked-slots (slot-id)>
+		 *
+		 */
+		
+		// No resources = no bookings
+		if(!empty($resources))
+		{
+			$bookings = TS_Booking::getBookings();
+			
+			// Create a "bookings" element to contain all resources
+			$bookings_element = $xml->createElement("bookings");
+			// Append the "bookings" element to document root element
+			$timeslot_element->appendChild($bookings_element);
+			
+			// Choose the first resource ID if a resource_id isn't passed
+			if(!isset($current_resource_id))
+				$current_resource_id = $resources[0]->getID();
+			
+			foreach($bookings as $booking)
+			{
+				if($booking->getResource() == $current_resource_id)
+				{
+					// Create a "booking" element to contain all info about a resource
+					$booking_element = $xml->createElement("booking");
+					// Append the "booking" element to the "resources element
+					$bookings_element->appendChild($booking_element);
+					
+					// -- Create and append data elements to the "booking" element --
+					$booking_element->appendChild( $xml->createElement("id", $booking->getID()) );
+					
+					$booked_slots_element = $xml->createElement("booked-slots");
+					$booking_element->appendChild($booked_slots_element);	
+					
+					$slot_id_element = $xml->createElement("slot-id", $booking->getSlots());
+					$slot_id_element->setAttribute("repetition", $booking->getRepetition());
+					$booked_slots_element->appendChild( $slot_id_element );
+					
+					$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()) );
+					$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
+				}
+			}
+		}
+		
+		/* ---------------------------------------- */
+		
 		
 		/**
 		 *	This should retrieve all users from the database.
@@ -329,19 +407,30 @@ class TimeSlot
 		 *	<!ELEMENT user (firstname, lastname, e-mail, avatar?, id, role, user-allowances?)>
 		 */
 		
-		$user = new TS_User(wp_get_current_user());
+		// create an array with all user ids that have at least one booking
+		$usersWithBooking = array();
+		
+		foreach($bookings as $booking)
+		{
+			array_push($usersWithBooking, $booking->getUser());
+		}
+		
+		$users = TS_User::getUsers($usersWithBooking);
 		
 		$users_element = $xml->createElement("users");
 		$timeslot_element->appendChild($users_element);
 		
-		$user_element = $xml->createElement("user");
-		$users_element->appendChild($user_element);
-		
-		$user_element->appendChild( $xml->createElement("firstname", $user->getFirstName()) );
-		$user_element->appendChild( $xml->createElement("lastname", $user->getLastName()) );
-		$user_element->appendChild( $xml->createElement("e-mail", "* marcus.stenbeck@gmail.com *") );
-		$user_element->appendChild( $xml->createElement("id", $user->getID()) );
-		$user_element->appendChild( $xml->createElement("role", "* The Bry Man *") );
+		foreach($users as $user)
+		{
+			$user_element = $xml->createElement("user");
+			$users_element->appendChild($user_element);
+			
+			$user_element->appendChild( $xml->createElement("firstname", $user->user_firstname) );
+			$user_element->appendChild( $xml->createElement("lastname", $user->user_lastname) );
+			$user_element->appendChild( $xml->createElement("e-mail", $user->user_email) );
+			$user_element->appendChild( $xml->createElement("id", $user->ID) );
+			$user_element->appendChild( $xml->createElement("role", $user->user_level) );
+		}
 
 		/* ---------------------------------------- */
 		
@@ -379,96 +468,78 @@ class TimeSlot
 		/* ---------------------------------------- */
 		
 		/**
-		 *	This should retrieve all bookings from the database.
-		 *
-		 *	<!ELEMENT bookings (booking+)>
-		 *	<!ELEMENT booking (booked-slots, resource-id, user-id)>
-		 *	<!ELEMENT booked-slots (slot-id)>
-		 *
-		 */
-		
-		$bookings = TS_Booking::getBookings();
-		
-		// Create a "bookings" element to contain all resources
-		$bookings_element = $xml->createElement("bookings");
-		// Append the "bookings" element to document root element
-		$timeslot_element->appendChild($bookings_element);
-		
-		// Choose the first resource ID if a resource_id isn't passed
-		if(!isset($resource_id))
-			$resource_id = $resources[0]->getID();
-		
-		foreach($bookings as $booking)
-		{
-			if($booking->getResource() == $resource_id)
-			{
-				// Create a "booking" element to contain all info about a resource
-				$booking_element = $xml->createElement("booking");
-				// Append the "booking" element to the "resources element
-				$bookings_element->appendChild($booking_element);
-				
-				// -- Create and append data elements to the "booking" element --
-				$booking_element->appendChild( $xml->createElement("id", $booking->getID()) );
-				
-				$booked_slots_element = $xml->createElement("booked-slots");
-				$booking_element->appendChild($booked_slots_element);	
-				$booked_slots_element->appendChild( $xml->createElement("slot-id", $booking->getSlots()) );
-				
-				$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()) );
-				$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
-			}
-		}
-		
-		/* ---------------------------------------- */
-		
-		/**
 		 *	This should retrieve all slots from the database.
 		 *	A slot is a time-range which specifies availability.
 		 *
 		 *	<!ELEMENT slots (slot*)>
 		 *	<!ELEMENT slot (id,time-range)>
 		 */
-		
-		$schedules = TS_Schedule::getSchedule();
-		
-		$schedules_element = $xml->createElement("schedules");
-		$timeslot_element->appendChild($schedules_element);
-		
-		foreach($schedules as $schedule)
+		if(!empty($resources))
 		{
-			// Create a "schedule" element to contain all info about a resource
-			$schedule_element = $xml->createElement("schedule");
-			// Append the "schedule" element to the "schedules" element
-			$schedules_element->appendChild($schedule_element);
+			$schedules = TS_Schedule::getSchedule($current_resource->getSchedule());
 			
-			// Create and append data elements to the "schedule" element
-			$schedule_element->appendChild( $xml->createElement("id", $schedule->getID()) );
+			$schedules_element = $xml->createElement("schedules");
+			$timeslot_element->appendChild($schedules_element);
 			
-			$time_range_element = $xml->createElement("time-range");
-			$time_range_element->setAttribute("start", $schedule->getStartTime());
-			$time_range_element->setAttribute("end", $schedule->getEndTime());
-			$time_range_element->setAttribute("status", "default");
-			
-			$schedule_element->appendChild($time_range_element);
-			
-			$slots_element = $xml->createElement('slots');
-			$schedule_element->appendChild($slots_element);
-			
-			$slots = $schedule->getSlots();
-			
-			foreach($slots as $slot)
+			foreach($schedules as $schedule)
 			{
-				$slot_element = $xml->createElement('slot');
-				$slots_element->appendChild($slot_element);
+				// Create a "schedule" element to contain all info about a resource
+				$schedule_element = $xml->createElement("schedule");
+				// Append the "schedule" element to the "schedules" element
+				$schedules_element->appendChild($schedule_element);
 				
-				$slot_element->appendChild( $xml->createElement('id', $slot->getID()) );
+				// Create and append data elements to the "schedule" element
+				$schedule_element->appendChild( $xml->createElement("id", $schedule->getID()) );
 				
 				$time_range_element = $xml->createElement("time-range");
-				$time_range_element->setAttribute("start", date("H:i", strtotime($slot->getStartTime())));
-				$time_range_element->setAttribute("end", date("H:i", strtotime($slot->getEndTime())));
+				$time_range_element->setAttribute("start", $schedule->getStartTime());
+				$time_range_element->setAttribute("end", $schedule->getEndTime());
 				$time_range_element->setAttribute("status", "default");
-			
-				$slot_element->appendChild($time_range_element);
+				
+				$schedule_element->appendChild($time_range_element);
+				
+				$slots_element = $xml->createElement('slots');
+				$schedule_element->appendChild($slots_element);
+				
+				$slots = $schedule->getSlots();
+				
+				foreach($slots as $slot)
+				{
+					// Create a span to determine which slots to show.
+					// For now it's a day.
+					$selectedDate = strtotime($selected_date);
+					$nextDate = $selectedDate + 86400;
+					
+					// Repetition from the first time the slot existed
+					$repetition = floor( ( $selectedDate - strtotime($schedule->getStartTime()) ) / $schedule->getDuration() );
+					
+					// Create relative start and end times for the slot
+					// corresponding to the repetition
+					$relativeStart = strtotime($slot->getStartTime()) + $schedule->getDuration() * $repetition;
+					$relativeEnd = strtotime($slot->getEndTime()) + $schedule->getDuration() * $repetition;
+					
+					// Debugging
+					//echo 'Repetition: ' . $repetition . '<br/>';
+					//echo 'Schedule: ' . $schedule->getStartTime() . '<br/>';
+					//echo 'S: ' . date('Y-m-d H:i:s', $relativeStart) . ' | ' . date('Y-m-d H:i:s', $selectedDate) . '<br/>E: ' . date('Y-m-d H:i:s', $relativeEnd) . ' | ' . date('Y-m-d H:i:s', $nextDate) . '<br/>';
+					
+					// If the selected date is within the range of a slot
+					if($relativeStart >= $selectedDate && $relativeEnd < $nextDate)
+					{
+						$slot_element = $xml->createElement('slot');
+						$slots_element->appendChild($slot_element);
+						
+						$slot_element->appendChild( $xml->createElement('id', $slot->getID()) );
+						
+						$time_range_element = $xml->createElement("time-range");
+						$time_range_element->setAttribute("start", date("H:i", strtotime($slot->getStartTime())));
+						$time_range_element->setAttribute("end", date("H:i", strtotime($slot->getEndTime())));
+						$time_range_element->setAttribute("status", "default");
+					
+						$slot_element->appendChild($time_range_element);
+						$slot_element->setAttribute("repetition", $repetition);
+					}
+				}
 			}
 		}
 
@@ -504,12 +575,13 @@ class TimeSlot
 		// Import XSL document
 		$xsl = new DOMDocument();
 
-		if ($this->is_mobile()) {
+		if ( $this->is_mobile() )
+		{
 			// Place code you wish to execute if browser is mobile here
 			$xsl->load($this->plugin_dir."timeslot-html-mobile.xsl");
 		}
-
-		else {
+		else
+		{
 			// Place code you wish to execute if browser is NOT mobile here
 			$xsl->load($this->plugin_dir."timeslot-html-screen.xsl");
 		}
@@ -517,7 +589,19 @@ class TimeSlot
 		// Create an XSLT processor and process the XML document
 		$parser = new XSLTProcessor();
 		$parser->importStyleSheet($xsl);
-		$parser->setParameter('', 'current_resource', $resource_id);
+		
+		// set parameters
+		$parser->setParameter('', 'current_resource', $current_resource_id);
+		
+		$current_user_level = wp_get_current_user()->user_level > -1 ? wp_get_current_user()->user_level : -1;
+		$parser->setParameter('', 'current_user_level', $current_user_level);
+		
+		$current_user_id = wp_get_current_user()->ID;
+		$parser->setParameter('', 'current_user_id', $current_user_id);
+		
+		// Send selected date to XSLT
+		$parser->setParameter('', 'selected_date', $selected_date);
+		
 		$standardView = $parser->transformToXML($xml);
 		
 		// Validate XML file against it's DTD
@@ -527,308 +611,330 @@ class TimeSlot
 /*
  *	Handle states (… or views, if you wish.)
  */
-		if(isset($_GET['booking']))
-		{
-			/*
-			 *	Handle booking states
-			 */
-			
-			// Handle viewing bookings
-			if(isset($_GET['add']))
+ 
+ 		// Only allow modifications if the user is logged in
+ 		 if($current_user_level > -1)
+ 		 {
+			if(isset($_GET['booking']))
 			{
-				if(isset($_POST['slot_id']) && isset($_POST['resource_id']) && isset($_POST['user_id']))
+				/*
+				 *	Handle booking states
+				 */
+				
+				// Handle viewing bookings
+				if(isset($_GET['add']))
 				{
-					$booking = new TS_Booking($_POST['slot_id'], $_POST['user_id'], $_POST['resource_id']);
-					
-					$booking->save() or die('save');
-					
-					$return = '<h2>Your booking is saved</h2>';
-				}
-				else if(isset($_GET['slot_id']) && isset($_GET['resource_id']))
-				{
-					$booking = new TS_Booking($_GET['slot_id'], $user->getID(), $_GET['resource_id']);
-					
-					$booking->save() or die('save');
-					
-					$return = '<h2>Your booking is saved</h2>';
-				}
-				else
-				{
-					$form = '<form method="post">
-					
-			 					<select id="slots" name="slot_id">';
-					/// slots
-			 		$slots = TS_Slot::getSlots();
-			 		
-			 		foreach($slots as $slot)
-			 			$form .= '<option value="' . $slot->getID() . '">' . $slot->getStartTime() . ' - ' . $slot->getEndTime() . '</option>';
-						
-					$form .=	'</select>';
-					
-					
-					//////
-					
-					
-					if($_GET['resource_id'])
+					if( isset($_POST['slot_id']) && isset($_POST['resource_id']) && isset($_POST['user_id']) && isset($_POST['repetition']) )
 					{
-						$resource = TS_Resource::getResources($_GET['resource_id']);
+						$booking = new TS_Booking($_POST['slot_id'], $_POST['user_id'], $_POST['resource_id'], null, $_POST['repetition']);
 						
-						$form .= '		<input name="resource_id" type="hidden" value="' . $resource->getID() . '"/>
-										<input type="text" disabled="disabled" value="' . $resource->getName() . '"/>';
+						$booking->save() or die('save');
+						
+						$return = '<h2>Your booking is saved</h2>';
+					}
+					else if( isset($_GET['slot_id']) && isset($_GET['resource_id']) && isset($_GET['repetition']) )
+					{
+						$booking = new TS_Booking($_GET['slot_id'], $current_user->getID(), $_GET['resource_id'], null, $_GET['repetition']);
+						
+						$booking->save() or die('save');
+						
+						$return = '<h2>Your booking is saved</h2>';
 					}
 					else
 					{
-			 			$resources = TS_Resource::getResources();
-			 			
-			 			$form .=	'<select id="resources" name="resource_id">';
-			 			
-			 			foreach($resources as $resource)
-			 				$form .= '<option value="' . $resource->getID() . '">' . $resource->getName() . '</option>';
+						$form = '<form method="post">
 						
+				 					<select id="slots" name="slot_id">';
+						/// slots
+				 		$slots = TS_Slot::getSlots();
+				 		
+				 		foreach($slots as $slot)
+				 			$form .= '<option value="' . $slot->getID() . '">' . $slot->getStartTime() . ' - ' . $slot->getEndTime() . '</option>';
+							
 						$form .=	'</select>';
-					}
-					//////
-					
-					$form .= '		<input name="user_id" type="hidden" value="' . $user->getID() . '"/>
-									<input type="text" disabled="disabled" value="' . ( $user->getName() == '' ? 'unregistered' : $user->getName() ) . '"/>';
-					
-					
-					$form .= '		<input type="submit" value="Book"/>
-								</form>';
-					
-					$return = $form;
-				}
-			}
-			else if(isset($_GET['remove']))
-			{
-				if(isset($_GET['booking_id']))
-					TS_Booking::delete($_GET['booking_id']);
-			}
-			else if(isset($_GET['edit']))
-			{
-				echo '<script type="text/javascript">alert("edit")</script>';
-			}
-			else
-			{
-				echo '<script type="text/javascript">alert("view (default)")</script>';
-			}
-		}
-		else if(isset($_GET['resource']))
-		{
-			if(isset($_GET['add']))
-			{
-				if(isset($_POST['resource_name']) && isset($_POST['schedule_id']))
-				{
-					$resource = new TS_Resource($_POST['resource_name'], $_POST['schedule_id']);
-					
-					echo '<pre>';
-					print_r($resource);
-					echo '</pre>';
-					
-					$resource->save() or die('TS_Resource::save() failed!');
-					
-					$return = "<h2>Your resource is created!</h2>";
-				}
-				else
-				{
-					$form = '<form method="post">
-				 					<input type="text" name="resource_name"/>';
-				 	
-				 	// Create list of schedules
-				 	$schedules = TS_Schedule::getSchedule();
-				 	$form .= '<select name="schedule_id">';
-				 	foreach($schedules as $schedule)
-				 		$form .= '<option value="' . $schedule->getID() . '">id: ' . $schedule->getID() . '</option>';
-				 	$form .= '</select>';
-				 	
-				 	
-				 	$form .= '<input type="submit" value="Create"/>';
-					$form .= '</form>';
-					
-					$return = $form;
-				}
-			}
-			else if(isset($_GET['remove']))
-			{
-				if(isset($_GET['id']))
-					TS_Resource::delete($_GET['id']);
-			}
-		}
-		else if(isset($_GET['schedule']))
-		{
-			if(isset($_GET['add']))
-			{
-				if(isset($_POST['start']) && isset($_POST['end']))
-				{
-					$duration = strtotime($_POST['end']) - strtotime($_POST['start']);
-					$schedule = new TS_Schedule($_POST['start'], $duration);
-					
-					// Implement saving of notes
-					/*
-					if(isset($_POST['schedule_notes']))
-						$schedule->setNotes($_POST['schedule_notes']);
-					*/
-					
-					$schedule->save() or die('TS_Schedule::save() failed!');
-					
-					$return = "<h2>Your schedule is created!</h2>";
-				}
-				else
-				{
-					$form = '<form method="post">
-				 					<label for="start">Starting Date</label>
-				 					<input type="date" id="start" name="start"/>
-				 					
-				 					<label for="end">Ending Date</label>
-				 					<input type="date" id="end" name="end" />
-				 					
-				 					<label for="period_name">Schedule Name</label>
-				 					<textarea id="schedule_notes" name="schedule_notes"></textarea>
-				 					
-				 					<input type="submit" value="Create"/>
-								</form>';
-					
-					$return = $form;
-				}
-			}
-			else if(isset($_GET['edit']))
-			{
-				$slotsPerDay = 24;
-				$slotLength = 86400 / $slotsPerDay;
-				
-				if(isset($_POST['schedule_id']))
-				{
-					echo '<pre>';
-					print_r($_POST);
-					
-					// Create an array of slots that were checked in the form
-					$formSlots = array();
-					while($post = current($_POST))
-					{
-						$key = key($_POST);
-						if(substr($key, 0, 2) == 't_')
-							$formSlots[$key] = $_POST[$key];
 						
-						next($_POST);
-					}
-					print_r($formSlots);
-					
-					// Create an array of the slots already in database
-					if(isset($_POST['dbSlots']))
-						$dbSlots = explode(',', $_POST['dbSlots']);
-					print_r($dbSlots);
-					
-					echo '</pre>';
-					
-					foreach($formSlots as $formSlot)
-					{
-						if(isset($dbSlots))
+						
+						//////
+						
+						
+						if($_GET['resource_id'])
 						{
-							// If the slot is in both the database and form slots then do nothing
-							if(in_array($formSlot, $dbSlots, true))
+							$resource = TS_Resource::getResources($_GET['resource_id']);
+							
+							$form .= '		<input name="resource_id" type="hidden" value="' . $resource->getID() . '"/>
+											<input type="text" disabled="disabled" value="' . $resource->getName() . '"/>';
+						}
+						else
+						{
+				 			$resources = TS_Resource::getResources();
+				 			
+				 			$form .=	'<select id="resources" name="resource_id">';
+				 			
+				 			foreach($resources as $resource)
+				 				$form .= '<option value="' . $resource->getID() . '">' . $resource->getName() . '</option>';
+							
+							$form .=	'</select>';
+						}
+						//////
+						
+						$form .= '		<input name="user_id" type="hidden" value="' . $current_user->getID() . '"/>
+										<input type="text" disabled="disabled" value="' . ( $current_user->getName() == '' ? 'unregistered' : $current_user->getName() ) . '"/>';
+						
+						
+						$form .= '		<input type="submit" value="Book"/>
+									</form>';
+						
+						$return = $form;
+					}
+				}
+				else if(isset($_GET['remove']))
+				{
+					if( isset($_GET['booking_id']) )
+					{
+						// Get booking
+						$booking = TS_Booking::getBooking($_GET['booking_id']);
+						
+						if($booking->getUser() == $current_user->getID())
+						{
+							TS_Booking::delete($_GET['booking_id']);
+						}
+						else
+						{
+							echo "You tried to remove someone else's booking. That's NOT allowed!";
+						}
+					}
+				}
+				else if(isset($_GET['edit']))
+				{
+					echo '<script type="text/javascript">alert("edit")</script>';
+				}
+				else
+				{
+					echo '<script type="text/javascript">alert("view (default)")</script>';
+				}
+			}
+			else if(isset($_GET['resource']))
+			{
+				if(isset($_GET['add']))
+				{
+					if(isset($_POST['resource_name']) && isset($_POST['schedule_id']))
+					{
+						$resource = new TS_Resource($_POST['resource_name'], $_POST['schedule_id']);
+						
+						echo '<pre>';
+						print_r($resource);
+						echo '</pre>';
+						
+						$resource->save() or die('TS_Resource::save() failed!');
+						
+						$return = "<h2>Your resource is created!</h2>";
+					}
+					else
+					{
+						$form = '<form method="post">
+					 					<input type="text" name="resource_name"/>';
+					 	
+					 	// Create list of schedules
+					 	$schedules = TS_Schedule::getSchedule();
+					 	$form .= '<select name="schedule_id">';
+					 	foreach($schedules as $schedule)
+					 		$form .= '<option value="' . $schedule->getID() . '">id: ' . $schedule->getID() . '</option>';
+					 	$form .= '</select>';
+					 	
+					 	
+					 	$form .= '<input type="submit" value="Create"/>';
+						$form .= '</form>';
+						
+						$return = $form;
+					}
+				}
+				else if(isset($_GET['remove']))
+				{
+					if(isset($_GET['id']))
+						TS_Resource::delete($_GET['id']);
+				}
+			}
+			else if(isset($_GET['schedule']))
+			{
+				if(isset($_GET['add']))
+				{
+					if(isset($_POST['start']) && isset($_POST['end']))
+					{
+						$duration = strtotime($_POST['end']) - strtotime($_POST['start']);
+						$schedule = new TS_Schedule($_POST['start'], $duration);
+						
+						// Implement saving of notes
+						/*
+						if(isset($_POST['schedule_notes']))
+							$schedule->setNotes($_POST['schedule_notes']);
+						*/
+						
+						$schedule->save() or die('TS_Schedule::save() failed!');
+						
+						$return = "<h2>Your schedule is created!</h2>";
+					}
+					else
+					{
+						$form = '<form method="post">
+					 					<label for="start">Starting Date</label>
+					 					<input type="date" id="start" name="start"/>
+					 					
+					 					<label for="end">Ending Date</label>
+					 					<input type="date" id="end" name="end" />
+					 					
+					 					<label for="period_name">Schedule Name</label>
+					 					<textarea id="schedule_notes" name="schedule_notes"></textarea>
+					 					
+					 					<input type="submit" value="Create"/>
+									</form>';
+						
+						$return = $form;
+					}
+				}
+				else if(isset($_GET['edit']))
+				{
+					$slotsPerDay = 24;
+					$slotLength = 86400 / $slotsPerDay;
+					
+					if(isset($_POST['schedule_id']))
+					{
+						echo '<pre>';
+						print_r($_POST);
+						
+						// Create an array of slots that were checked in the form
+						$formSlots = array();
+						while($post = current($_POST))
+						{
+							$key = key($_POST);
+							if(substr($key, 0, 2) == 't_')
+								$formSlots[$key] = $_POST[$key];
+							
+							next($_POST);
+						}
+						print_r($formSlots);
+						
+						// Create an array of the slots already in database
+						if(isset($_POST['dbSlots']))
+							$dbSlots = explode(',', $_POST['dbSlots']);
+						print_r($dbSlots);
+						
+						echo '</pre>';
+						
+						foreach($formSlots as $formSlot)
+						{
+							if(isset($dbSlots))
 							{
-								// Remove corresponding element from $dbSlots
-								unset($dbSlots[array_search($formSlot,$dbSlots, true)]);
+								// If the slot is in both the database and form slots then do nothing
+								if(in_array($formSlot, $dbSlots, true))
+								{
+									// Remove corresponding element from $dbSlots
+									unset($dbSlots[array_search($formSlot,$dbSlots, true)]);
+								}
+								// If a slot exists among the form slots but not the database slots
+								// it needs to be added to the database
+								else if(!in_array($formSlot, $dbSlots, true))
+								{
+									// Create a slot object
+									$slot = new TS_Slot($formSlot, $slotLength);
+									
+									// Save the slot object
+									$slot->save($_POST['schedule_id']);
+								}
 							}
-							// If a slot exists among the form slots but not the database slots
-							// it needs to be added to the database
-							else if(!in_array($formSlot, $dbSlots, true))
+							else
 							{
 								// Create a slot object
 								$slot = new TS_Slot($formSlot, $slotLength);
-								
+									
 								// Save the slot object
 								$slot->save($_POST['schedule_id']);
 							}
 						}
-						else
+						
+						// Get the schedule with given ID
+						// NOTE: This could be done in a better way?
+						$scheduleID = $_POST['schedule_id'];
+						$schedule = TS_Schedule::getSchedule($scheduleID);
+						$schedule = $schedule[0];
+						$slots = $schedule->getSlots();
+						
+						// Remove the slots that weren't checked in the form, didn't
+						// exist among the form slots, and therefore weren't removed
+						// from the $dbSlots array
+						if(!empty($slots) && isset($dbSlots))
 						{
-							// Create a slot object
-							$slot = new TS_Slot($formSlot, $slotLength);
-								
-							// Save the slot object
-							$slot->save($_POST['schedule_id']);
+							foreach($dbSlots as $dbSlot)
+							{
+								$slot = $slots[$dbSlot];
+								$schedule->removeSlot($slot->getID());
+							}
 						}
 					}
-					
-					// Get the schedule with given ID
-					// NOTE: This could be done in a better way?
-					$scheduleID = $_POST['schedule_id'];
-					$schedule = TS_Schedule::getSchedule($scheduleID);
-					$schedule = $schedule[0];
-					$slots = $schedule->getSlots();
-					
-					// Remove the slots that weren't checked in the form, didn't
-					// exist among the form slots, and therefore weren't removed
-					// from the $dbSlots array
-					if(!empty($slots) && isset($dbSlots))
+					else if(isset($_GET['schedule_id']))
 					{
-						foreach($dbSlots as $dbSlot)
+						$schedule_id = $_GET['schedule_id'];
+						
+						$schedule = TS_Schedule::getSchedule($schedule_id);
+						$schedule = $schedule[0];
+						
+						$slots = $schedule->getSlots();
+						
+						$form = '<form method="post">';
+						$form .= '<input type="hidden" name="schedule_id" value="' . $schedule_id . '" />';
+						
+						// Add timestamps that existed before edit so we can detect deletions
+						if(!empty($slots))
 						{
-							$slot = $slots[$dbSlot];
-							$schedule->removeSlot($slot->getID());
+							$form .= '<input type="hidden" name="dbSlots" value="';
+							foreach($slots as $timestamp => $slot)
+								$form .= $timestamp . ',';
+								
+							// Remove the trailing slash
+							$form = substr($form, 0, -1);
+							
+							// Close <input> tag
+							$form .= '" />';
 						}
+						
+						$form .= '<div style="clear:both;"><input type="submit" value="Create" /></div>';
+						
+						$startTime = strtotime($schedule->getStartTime());
+						$endTime = strtotime($schedule->getEndTime());
+						
+						for($i = $startTime; $i <= $endTime; $i += 86400)
+						{
+							$form .= '<div style="float:left;">';
+							
+							$form .= '<p>' . date('Y-m-d', $i) . '</p>';
+							$form .= '<ul style="margin: 0 3em 0 0; list-style:none;">';
+							
+							for($j = 0; $j < 86400; $j = $j + $slotLength)
+							{
+								$timestamp = $i + $j;
+								$htmlHandle = 't_' . $timestamp;
+								$isChecked = isset($slots[$timestamp]) ? 'checked="checked" ' : null;
+								$form .= '<li style="position:relative;"><input id="' . $htmlHandle . '" name="' . $htmlHandle . '" value="' . $timestamp . '" type="checkbox" ' . $isChecked . 'style="position:absolute; top:4px; left:-20px;"/><label for="' . $htmlHandle . '">' . date('H:i', $timestamp) . ' - ' . date('H:i', $timestamp + $slotLength) . '</label></li>';
+							}
+							
+							$form .= '</ul>';
+							
+							$form .= '</div>';
+						}
+						$form .= '</form>';
+						
+						$return = $form;
 					}
 				}
-				else if(isset($_GET['schedule_id']))
+				else if(isset($_GET['remove']))
 				{
-					$schedule_id = $_GET['schedule_id'];
-					
-					$schedule = TS_Schedule::getSchedule($schedule_id);
-					$schedule = $schedule[0];
-					
-					$slots = $schedule->getSlots();
-					
-					$form = '<form method="post">';
-					$form .= '<input type="hidden" name="schedule_id" value="' . $schedule_id . '" />';
-					
-					// Add timestamps that existed before edit so we can detect deletions
-					if(!empty($slots))
-					{
-						$form .= '<input type="hidden" name="dbSlots" value="';
-						foreach($slots as $timestamp => $slot)
-							$form .= $timestamp . ',';
-							
-						// Remove the trailing slash
-						$form = substr($form, 0, -1);
-						
-						// Close <input> tag
-						$form .= '" />';
-					}
-					
-					$form .= '<div style="clear:both;"><input type="submit" value="Create" /></div>';
-					
-					$startTime = strtotime($schedule->getStartTime());
-					$endTime = strtotime($schedule->getEndTime());
-					
-					for($i = $startTime; $i <= $endTime; $i += 86400)
-					{
-						$form .= '<div style="float:left;">';
-						
-						$form .= '<p>' . date('Y-m-d', $i) . '</p>';
-						$form .= '<ul style="margin: 0 3em 0 0; list-style:none;">';
-						
-						for($j = 0; $j < 86400; $j = $j + $slotLength)
-						{
-							$timestamp = $i + $j;
-							$htmlHandle = 't_' . $timestamp;
-							$isChecked = isset($slots[$timestamp]) ? 'checked="checked" ' : null;
-							$form .= '<li style="position:relative;"><input id="' . $htmlHandle . '" name="' . $htmlHandle . '" value="' . $timestamp . '" type="checkbox" ' . $isChecked . 'style="position:absolute; top:4px; left:-20px;"/><label for="' . $htmlHandle . '">' . date('H:i', $timestamp) . ' - ' . date('H:i', $timestamp + $slotLength) . '</label></li>';
-						}
-						
-						$form .= '</ul>';
-						
-						$form .= '</div>';
-					}
-					$form .= '</form>';
-					
-					$return = $form;
+					if(isset($_GET['id']))
+						TS_Resource::delete($_GET['id']);
 				}
 			}
-			else if(isset($_GET['remove']))
+			else
 			{
-				if(isset($_GET['id']))
-					TS_Resource::delete($_GET['id']);
+				// Standard state
+				$return = $standardView;
 			}
 		}
 		else

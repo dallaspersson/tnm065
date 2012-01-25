@@ -1,12 +1,19 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:date="http://exslt.org/dates-and-times">
     <xsl:param name="current_resource" />
+    <xsl:param name="current_user_level" />
+    <xsl:param name="current_user_id" />
+    <xsl:param name="selected_date" />
+    
 	<xsl:template match="*">
 		<div class="body_content">
 			<div class="resources">
 				<h2>Resources</h2>
 				<div class="resources-scroll">
 					<xsl:apply-templates select="resources" />
-					<a href="?resource&#38;add">Add resource</a>
+					
+					<xsl:if test="$current_user_level &gt; -1">
+						<a href="?resource&#38;add">Add resource</a>
+					</xsl:if>
 				</div>
 			</div>
 			<div class="calendar-content">
@@ -28,7 +35,7 @@
 				</div>
 
 				<div class="bookings">
-					<h2>Bookings</h2>
+					<h2>Slots for <xsl:value-of select="$selected_date"/></h2>
 
 					<div class="bookings-scroll">
 						<!-- List bookings -->
@@ -66,7 +73,9 @@
 	      			</xsl:element>
 		      	</xsl:otherwise>
 	      	</xsl:choose>
-	      	<a href="?resource&#38;remove&#38;id={id}">Remove</a>
+	      	<xsl:if test="$current_user_level &gt; -1">
+	      		<a href="?resource&#38;remove&#38;id={id}">Remove</a>
+	      	</xsl:if>
 	    </xsl:for-each>
   	</xsl:template>
 
@@ -98,7 +107,12 @@
   			<xsl:variable name="current_slot_id">
   				<xsl:value-of select="id" />
   			</xsl:variable> 
-
+			
+			<!-- Save current slot id repetition -->
+			<xsl:variable name="current_slot_repetition">
+  				<xsl:value-of select="@repetition" />
+  			</xsl:variable> 
+  			
 			<!-- Find the booking, if it exists -->
   			<xsl:variable name="user_id">
 					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
@@ -115,20 +129,29 @@
   					</xsl:if>
   				</xsl:for-each>
 			</xsl:variable>
+			
+			<xsl:variable name="current_booking_repetition">
+					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
+  					<xsl:if test="slot-id = $current_slot_id">
+  						<xsl:value-of select="slot-id/@repetition"/>
+  					</xsl:if>
+  				</xsl:for-each>
+			</xsl:variable>
 
   			<!-- Print start and end time -->
   			<div class="fat-bottom">
   				<div class="tight">
 					<xsl:value-of select="time-range/@start" /> -
 					<xsl:value-of select="time-range/@end" /><br />
+					
 					<!-- Print user --> 
 					<em class="comment-text">
 						<xsl:choose>
 		  					<!-- Not booked -->
-			  				<xsl:when test="$user_id = ''">
+			  				<xsl:when test="$user_id = '' or $current_slot_repetition != $current_booking_repetition">
 			  					<xsl:text>Not booked</xsl:text>
 							</xsl:when>
-
+							
 							<!-- Booked -->
 							<xsl:otherwise>
 								<xsl:for-each select="/timeslot/users/user">
@@ -144,19 +167,29 @@
 				</div>
 	  			
   				<div class="right-booking">
-  				<!-- Check if user_id exists, if so the slot is booked. -->
-  				<xsl:choose>
-  					<!-- Not booked -->
-	  				<xsl:when test="$user_id = ''">
-	  					<!-- id="{concat('slot',$current_slot_id)}" -->
-	  					<a class="book_btn" id="{$current_slot_id}" href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}">Book</a>
-					</xsl:when>
 
-					<!-- Booked -->
-					<xsl:otherwise>
-						<a class="remove_btn" id="{$current_slot_id}" href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
-					</xsl:otherwise>
-				</xsl:choose>
+  				<xsl:if test="$current_user_level &gt; -1">
+	  				<!-- Check if user_id exists, if so the slot is booked. -->
+	  				<xsl:choose>
+	  					<!-- Not booked -->
+		  				<xsl:when test="$user_id = '' or $current_slot_repetition != $current_booking_repetition">
+		  					<a class="book_btn" id="{$current_slot_id}" href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}&#38;repetition={$current_slot_repetition}">Book</a>
+						</xsl:when>
+						
+						<!-- Booked -->
+						<xsl:otherwise>
+							<xsl:choose>
+								<xsl:when test="$user_id = $current_user_id">
+									<a class="remove_btn" id="{$current_slot_id}" href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
+								</xsl:when>
+								<xsl:otherwise>
+									Booked
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:if>
+
 				</div>
   			</div>
   		</xsl:for-each>
@@ -165,8 +198,8 @@
 
 
   	<!-- Code for the calendar (call with <xsl:call-template name="Calendar" />) -->
-  	<xsl:variable name="DisplayDate" select="date:date()"/> 
-  	<xsl:variable name="Today" select="date:day-in-month()"/> 
+  	<xsl:variable name="DisplayDate" select="$selected_date"/> 
+  	<xsl:variable name="Today" select="date:date()"/> 
 	<xsl:variable name="Year" select="date:year($DisplayDate)"/> 
 	<xsl:variable name="Month" select="date:month-in-year($DisplayDate)"/> 
 	<xsl:variable name="MonthName" select="date:month-name($DisplayDate)" /> 
@@ -269,8 +302,8 @@
 								</strong>
 							</xsl:when>
 							<xsl:otherwise>
-							<xsl:value-of select="$day" /> 
-						</xsl:otherwise>
+								<xsl:value-of select="$day" /> 
+							</xsl:otherwise>
 						</xsl:choose>
 					</div>
 				</td> 
@@ -285,22 +318,39 @@
 	    <xsl:otherwise> 
 				<td> 
 					<xsl:element name="a">
-					  	<xsl:attribute name="href">#
+					  	<xsl:attribute name="href">
+					  		?resource_id=<xsl:value-of select="$current_resource" />&#38;ts_y=<xsl:value-of select="$Year" />&#38;ts_m=<xsl:value-of select="$Month" />&#38;ts_d=<xsl:value-of select="$day" />
 					  	</xsl:attribute>
 					  	<div class="cell-link">
 							<xsl:choose>
 								<!-- If today -->
-								<xsl:when test="$day = $Today">
+								<xsl:when test="$day = date:day-in-month($Today) and $Month = date:month-in-year($Today) and $Year = date:year($Today)">
 									<div class="today">
 										<p>Today</p>
 									</div>
-									<strong>
-										<xsl:value-of select="$day" /> 
-									</strong>
+									<xsl:choose>
+										<xsl:when test="$day = date:day-in-month($DisplayDate)">
+											<strong>
+												<xsl:value-of select="$day" />
+											</strong>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="$day" />
+										</xsl:otherwise>
+									</xsl:choose>
 								</xsl:when>
 								<xsl:otherwise>
-								<xsl:value-of select="$day" /> 
-							</xsl:otherwise>
+									<xsl:choose>
+										<xsl:when test="$day = date:day-in-month($DisplayDate)">
+											<strong>
+												<xsl:value-of select="$day" />
+											</strong>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="$day" />
+										</xsl:otherwise>
+									</xsl:choose>
+								</xsl:otherwise>
 							</xsl:choose>
 						</div>
 					</xsl:element>

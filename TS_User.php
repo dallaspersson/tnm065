@@ -31,5 +31,17 @@ class TS_User
 	{
 		return $this->lastName;
 	}
+	
+	public static function getUsers($userIds)
+	{
+		$users = array();
+		
+		foreach($userIds as $userId)
+		{
+			$users[$userId] = get_userdata($userId);
+		}
+		
+		return $users;
+	}
 }
 ?>
