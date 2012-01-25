@@ -35,6 +35,24 @@ class TS_Booking
 		return $return;
 	}
 	
+	public static function getBooking($id)
+	{
+		$cols = array("id", "slot_id", "user_id", "resource_id");
+		
+		$cond = array('id' => $id);
+		
+		$bookings = TS_WordpressDatabaseConnector::select("timeslot_bookings", $cols, $cond);
+		
+		$return = array();
+		
+		foreach($bookings as $booking)
+		{	
+			$return = new TS_Booking($booking->slot_id, $booking->user_id, $booking->resource_id, $booking->id);
+		}
+		
+		return $return;
+	}
+	
 	public function save()
 	{
 		// Build argument array for database connector

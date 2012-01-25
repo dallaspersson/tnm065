@@ -36,7 +36,9 @@ class TS_Resource
 	
 	public function getSchedule()
 	{
-		$results = $GLOBALS['wpdb']->get_results("SELECT `id`, `start`, `repeat` FROM timeslot_schedule INNER JOIN timeslot_resources_schedule ON timeslot_schedule.id = timeslot_resources_schedule.schedule_id WHERE timeslot_resources_schedule.resource_id = " . $this->getID());
+		// Temporary solution: this should return a composite schedule
+		/*
+		$results = $GLOBALS['wpdb']->get_results("SELECT `id`, `start`, `repeat` FROM timeslot_schedule INNER JOIN timeslot_resources_schedule ON timeslot_schedule.id = timeslot_schedules_resources.schedule_id WHERE timeslot_schedules_resources.resource_id = " . $this->getID());
 		
 		$schedules = array();
 		
@@ -44,8 +46,9 @@ class TS_Resource
 		{
 			$schedules = array_merge($schedules, array(new TS_Day(strtotime($result->start), $result->repeat, $result->id)));
 		}
+		*/
 		
-		return new TS_CompositeSchedule($schedules);
+		return $this->schedules;
 	}
 	
 	public function getBookings()

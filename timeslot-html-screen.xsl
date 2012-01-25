@@ -2,6 +2,7 @@
     <xsl:param name="current_resource" />
     <xsl:param name="current_user_level" />
     <xsl:param name="current_user_id" />
+    <xsl:param name="selected_date" />
     
 	<xsl:template match="*">
 		<div class="body_content">
@@ -34,7 +35,7 @@
 				</div>
 
 				<div class="bookings">
-					<h2>Bookings</h2>
+					<h2>Slots for <xsl:value-of select="$selected_date"/></h2>
 
 					<div class="bookings-scroll">
 						<!-- List bookings -->
@@ -181,8 +182,8 @@
 
 
   	<!-- Code for the calendar (call with <xsl:call-template name="Calendar" />) -->
-  	<xsl:variable name="DisplayDate" select="date:date()"/> 
-  	<xsl:variable name="Today" select="date:day-in-month()"/> 
+  	<xsl:variable name="DisplayDate" select="$selected_date"/> 
+  	<xsl:variable name="Today" select="date:date()"/> 
 	<xsl:variable name="Year" select="date:year($DisplayDate)"/> 
 	<xsl:variable name="Month" select="date:month-in-year($DisplayDate)"/> 
 	<xsl:variable name="MonthName" select="date:month-name($DisplayDate)" /> 
@@ -285,8 +286,8 @@
 								</strong>
 							</xsl:when>
 							<xsl:otherwise>
-							<xsl:value-of select="$day" /> 
-						</xsl:otherwise>
+								<xsl:value-of select="$day" /> 
+							</xsl:otherwise>
 						</xsl:choose>
 					</div>
 				</td> 
@@ -301,22 +302,39 @@
 	    <xsl:otherwise> 
 				<td> 
 					<xsl:element name="a">
-					  	<xsl:attribute name="href">#
+					  	<xsl:attribute name="href">
+					  		?resource_id=<xsl:value-of select="$current_resource" />&#38;ts_y=<xsl:value-of select="$Year" />&#38;ts_m=<xsl:value-of select="$Month" />&#38;ts_d=<xsl:value-of select="$day" />
 					  	</xsl:attribute>
 					  	<div class="cell-link">
 							<xsl:choose>
 								<!-- If today -->
-								<xsl:when test="$day = $Today">
+								<xsl:when test="$day = date:day-in-month($Today) and $Month = date:month-in-year($Today) and $Year = date:year($Today)">
 									<div class="today">
 										<p>Today</p>
 									</div>
-									<strong>
-										<xsl:value-of select="$day" /> 
-									</strong>
+									<xsl:choose>
+										<xsl:when test="$day = date:day-in-month($DisplayDate)">
+											<strong>
+												<xsl:value-of select="$day" />
+											</strong>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="$day" />
+										</xsl:otherwise>
+									</xsl:choose>
 								</xsl:when>
 								<xsl:otherwise>
-								<xsl:value-of select="$day" /> 
-							</xsl:otherwise>
+									<xsl:choose>
+										<xsl:when test="$day = date:day-in-month($DisplayDate)">
+											<strong>
+												<xsl:value-of select="$day" />
+											</strong>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="$day" />
+										</xsl:otherwise>
+									</xsl:choose>
+								</xsl:otherwise>
 							</xsl:choose>
 						</div>
 					</xsl:element>
