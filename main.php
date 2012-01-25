@@ -374,7 +374,10 @@ class TimeSlot
 					
 					$booked_slots_element = $xml->createElement("booked-slots");
 					$booking_element->appendChild($booked_slots_element);	
-					$booked_slots_element->appendChild( $xml->createElement("slot-id", $booking->getSlots()) );
+					
+					$slot_id_element = $xml->createElement("slot-id", $booking->getSlots());
+					$slot_id_element->setAttribute("repetition", $booking->getRepetition());
+					$booked_slots_element->appendChild( $slot_id_element );
 					
 					$booking_element->appendChild( $xml->createElement("resource-id", $booking->getResource()) );
 					$booking_element->appendChild( $xml->createElement("user-id", $booking->getUser()) );
@@ -489,16 +492,25 @@ class TimeSlot
 				
 				foreach($slots as $slot)
 				{
+					// Create a span to determine which slots to show.
+					// For now it's a day.
 					$selectedDate = strtotime($selected_date);
 					$nextDate = $selectedDate + 86400;
 					
+					// Repetition from the first time the slot existed
 					$repetition = floor( ( $selectedDate - strtotime($schedule->getStartTime()) ) / $schedule->getDuration() );
+					
+					// Create relative start and end times for the slot
+					// corresponding to the repetition
 					$relativeStart = strtotime($slot->getStartTime()) + $schedule->getDuration() * $repetition;
 					$relativeEnd = strtotime($slot->getEndTime()) + $schedule->getDuration() * $repetition;
 					
-					echo 'Repetition: ' . $repetition . '<br/>';
-					echo 'Schedule: ' . $schedule->getStartTime() . '<br/>';
-					echo 'S: ' . date('Y-m-d H:i:s', $relativeStart) . ' | ' . date('Y-m-d H:i:s', $selectedDate) . '<br/>E: ' . date('Y-m-d H:i:s', $relativeEnd) . ' | ' . date('Y-m-d H:i:s', $nextDate) . '<br/>';
+					// Debugging
+					//echo 'Repetition: ' . $repetition . '<br/>';
+					//echo 'Schedule: ' . $schedule->getStartTime() . '<br/>';
+					//echo 'S: ' . date('Y-m-d H:i:s', $relativeStart) . ' | ' . date('Y-m-d H:i:s', $selectedDate) . '<br/>E: ' . date('Y-m-d H:i:s', $relativeEnd) . ' | ' . date('Y-m-d H:i:s', $nextDate) . '<br/>';
+					
+					// If the selected date is within the range of a slot
 					if($relativeStart >= $selectedDate && $relativeEnd < $nextDate)
 					{
 						$slot_element = $xml->createElement('slot');
@@ -512,6 +524,7 @@ class TimeSlot
 						$time_range_element->setAttribute("status", "default");
 					
 						$slot_element->appendChild($time_range_element);
+						$slot_element->setAttribute("repetition", $repetition);
 					}
 				}
 			}
@@ -598,17 +611,17 @@ class TimeSlot
 				// Handle viewing bookings
 				if(isset($_GET['add']))
 				{
-					if(isset($_POST['slot_id']) && isset($_POST['resource_id']) && isset($_POST['user_id']))
+					if( isset($_POST['slot_id']) && isset($_POST['resource_id']) && isset($_POST['user_id']) && isset($_POST['repetition']) )
 					{
-						$booking = new TS_Booking($_POST['slot_id'], $_POST['user_id'], $_POST['resource_id']);
+						$booking = new TS_Booking($_POST['slot_id'], $_POST['user_id'], $_POST['resource_id'], null, $_POST['repetition']);
 						
 						$booking->save() or die('save');
 						
 						$return = '<h2>Your booking is saved</h2>';
 					}
-					else if(isset($_GET['slot_id']) && isset($_GET['resource_id']))
+					else if( isset($_GET['slot_id']) && isset($_GET['resource_id']) && isset($_GET['repetition']) )
 					{
-						$booking = new TS_Booking($_GET['slot_id'], $current_user->getID(), $_GET['resource_id']);
+						$booking = new TS_Booking($_GET['slot_id'], $current_user->getID(), $_GET['resource_id'], null, $_GET['repetition']);
 						
 						$booking->save() or die('save');
 						

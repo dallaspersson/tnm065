@@ -180,3 +180,13 @@ ALTER TABLE `timeslot_resources`
 	REFERENCES `timeslot_schedules` (`id`)
 	ON UPDATE CASCADE
 	ON DELETE CASCADE;
+
+
+-- -----------------------------------
+
+--
+-- Add `repetition` to `timeslot_bookings`
+--
+
+ALTER TABLE `timeslot_bookings`
+	ADD COLUMN `repetition` INT(11) NOT NULL AFTER `resource_id`;

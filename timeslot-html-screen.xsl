@@ -107,7 +107,12 @@
   			<xsl:variable name="current_slot_id">
   				<xsl:value-of select="id" />
   			</xsl:variable> 
-
+			
+			<!-- Save current slot id repetition -->
+			<xsl:variable name="current_slot_repetition">
+  				<xsl:value-of select="@repetition" />
+  			</xsl:variable> 
+  			
 			<!-- Find the booking, if it exists -->
   			<xsl:variable name="user_id">
 					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
@@ -124,20 +129,29 @@
   					</xsl:if>
   				</xsl:for-each>
 			</xsl:variable>
+			
+			<xsl:variable name="current_booking_repetition">
+					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
+  					<xsl:if test="slot-id = $current_slot_id">
+  						<xsl:value-of select="slot-id/@repetition"/>
+  					</xsl:if>
+  				</xsl:for-each>
+			</xsl:variable>
 
   			<!-- Print start and end time -->
   			<div class="fat-bottom">
   				<div class="tight">
 					<xsl:value-of select="time-range/@start" /> -
 					<xsl:value-of select="time-range/@end" /><br />
+					
 					<!-- Print user --> 
 					<em class="comment-text">
 						<xsl:choose>
 		  					<!-- Not booked -->
-			  				<xsl:when test="$user_id = ''">
+			  				<xsl:when test="$user_id = '' or $current_slot_repetition != $current_booking_repetition">
 			  					<xsl:text>Not booked</xsl:text>
 							</xsl:when>
-
+							
 							<!-- Booked -->
 							<xsl:otherwise>
 								<xsl:for-each select="/timeslot/users/user">
@@ -157,8 +171,8 @@
 	  				<!-- Check if user_id exists, if so the slot is booked. -->
 	  				<xsl:choose>
 	  					<!-- Not booked -->
-		  				<xsl:when test="$user_id = ''">
-		  					<a href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}">Book</a>
+		  				<xsl:when test="$user_id = '' or $current_slot_repetition != $current_booking_repetition">
+		  					<a href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}&#38;repetition={$current_slot_repetition}">Book</a>
 						</xsl:when>
 						
 						<!-- Booked -->
