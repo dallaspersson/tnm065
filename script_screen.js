@@ -53,13 +53,19 @@
 			            // Change elements class to remove_btn
 			            jQuery(obj).removeClass("book_btn").addClass("remove_btn");
 
-			            // Change element value
-			            jQuery(obj).text("Remove");
+			            // Change button text
+			            jQuery(obj).fadeTo('slow', 0.0, function() {
+							jQuery(obj).text("Remove");
+					    });
+					    jQuery(obj).fadeTo('slow', 1.0);
 			            
-			            // Change information about who owns the booking
-			            //alert(jQuery(obj).parent().prev().find("em").text()); 
+			            // Change information about who owns the booking 
 			            var user_name = data.user_fname + " " + data.user_lname;
-			            jQuery(obj).parent().prev().find("em").text(user_name);
+
+			            jQuery(obj).parent().prev().find("em").fadeTo('slow', 0.0, function() {
+							jQuery(obj).parent().prev().find("em").text(user_name);
+					    });
+					    jQuery(obj).parent().prev().find("em").fadeTo('slow', 1.0);
 			        }
 			        else{
 			         	alert(data.message);  
