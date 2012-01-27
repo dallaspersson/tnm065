@@ -17,10 +17,19 @@
 			urlQuery = urlQuery.replace('?', '');
 			var split = urlQuery.split('=');
 
+			// Break out the slot ID and repetition ID
+			// from the id attribute. (slotID:repetitionID)
+			var ids = jQuery(obj).attr("id");
+			var split2 = ids.split(':');
+			var current_slot = split2[0];
+			var current_rep = split2[1];
+
+
 			// Create array with the data we want to send with POST.
 			var postData = {
 				action: 'book',
-				slot_id: jQuery(obj).attr("id"),
+				slot_id: current_slot,
+				rep_id: current_rep,
 				resource_id: split[1]
 			};
 
@@ -39,7 +48,18 @@
 			        // 'data' is a JSON object which we can access directly.
 			        // Evaluate the data.success member and do something appropriate...
 			        if (data.success == true){
-			            alert(data.message);
+			            //alert(data.message);
+
+			            // Change elements class to remove_btn
+			            jQuery(obj).removeClass("book_btn").addClass("remove_btn");
+
+			            // Change element value
+			            jQuery(obj).text("Remove");
+			            
+			            // Change information about who owns the booking
+			            //alert(jQuery(obj).parent().prev().find("em").text()); 
+			            var user_name = data.user_fname + " " + data.user_lname;
+			            jQuery(obj).parent().prev().find("em").text(user_name);
 			        }
 			        else{
 			         	alert(data.message);  

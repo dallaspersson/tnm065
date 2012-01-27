@@ -173,7 +173,7 @@
 	  				<xsl:choose>
 	  					<!-- Not booked -->
 		  				<xsl:when test="$user_id = '' or $current_slot_repetition != $current_booking_repetition">
-		  					<a class="book_btn" id="{$current_slot_id}" href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}&#38;repetition={$current_slot_repetition}">Book</a>
+		  					<a class="book_btn" id="{$current_slot_id}:{$current_slot_repetition}" href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}&#38;repetition={$current_slot_repetition}">Book</a>
 						</xsl:when>
 						
 						<!-- Booked -->
