@@ -169,19 +169,20 @@
 				</div>
 	  			
   				<div class="right-booking">
+
   				<xsl:if test="$current_user_level &gt; -1">
 	  				<!-- Check if user_id exists, if so the slot is booked. -->
 	  				<xsl:choose>
 	  					<!-- Not booked -->
 		  				<xsl:when test="$user_id = '' or $current_slot_repetition != $current_booking_repetition">
-		  					<a href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}&#38;repetition={$current_slot_repetition}">Book</a>
+		  					<a class="book_btn" id="{$current_slot_id}:{$current_slot_repetition}" href="?booking&#38;add&#38;resource_id={$current_resource}&#38;slot_id={id}&#38;repetition={$current_slot_repetition}">Book</a>
 						</xsl:when>
 						
 						<!-- Booked -->
 						<xsl:otherwise>
 							<xsl:choose>
 								<xsl:when test="$user_id = $current_user_id">
-									<a href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
+									<a class="remove_btn" id="{$current_slot_id}:{$current_slot_repetition}:{$current_booking_id}" href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
 								</xsl:when>
 								<xsl:otherwise>
 									Booked
@@ -190,6 +191,7 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:if>
+
 				</div>
   			</div>
   		</xsl:for-each>
