@@ -116,7 +116,7 @@
 			<!-- Find the booking, if it exists -->
   			<xsl:variable name="user_id">
 					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
-  					<xsl:if test="slot-id = $current_slot_id">
+  					<xsl:if test="slot-id = $current_slot_id and slot-id/@repetition = $current_slot_repetition">
   						<xsl:value-of select="../user-id"/>
   					</xsl:if>
   				</xsl:for-each>
@@ -124,7 +124,7 @@
 
 			<xsl:variable name="current_booking_id">
 					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
-  					<xsl:if test="slot-id = $current_slot_id">
+  					<xsl:if test="slot-id = $current_slot_id and slot-id/@repetition = $current_slot_repetition">
   						<xsl:value-of select="../id"/>
   					</xsl:if>
   				</xsl:for-each>
@@ -132,7 +132,7 @@
 			
 			<xsl:variable name="current_booking_repetition">
 					<xsl:for-each select="/timeslot/bookings/booking/booked-slots">
-  					<xsl:if test="slot-id = $current_slot_id">
+  					<xsl:if test="slot-id = $current_slot_id and slot-id/@repetition = $current_slot_repetition">
   						<xsl:value-of select="slot-id/@repetition"/>
   					</xsl:if>
   				</xsl:for-each>
@@ -143,6 +143,8 @@
   				<div class="tight">
 					<xsl:value-of select="time-range/@start" /> -
 					<xsl:value-of select="time-range/@end" /><br />
+					
+					<!--[<xsl:value-of select="$current_booking_id" />|<xsl:value-of select="$current_slot_id" />](<xsl:value-of select="$current_slot_repetition" />|<xsl:value-of select="$current_booking_repetition" />)-->
 					
 					<!-- Print user --> 
 					<em class="comment-text">
