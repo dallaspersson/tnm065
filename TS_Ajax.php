@@ -26,6 +26,7 @@ $action = $_POST['action'];
 $slot = $_POST['slot_id'];
 $repetition = $_POST['rep_id'];
 $resource = $_POST['resource_id'];
+$booking = $_POST['booking_id'];
 $user = $current_user->ID;
 $fname = $current_user->user_firstname;
 $lname = $current_user->user_lastname;
@@ -42,7 +43,7 @@ switch ($action) {
         $success = book($slot, $user, $resource, $repetition);
         break;
     case "remove":
-        // Stuff
+        $success = unbook($booking);
         break;
 }
  
@@ -73,6 +74,11 @@ function book($slot, $user, $res, $rep) {
     
     $booking->save();
     return $booking; 
+}
 
+function unbook($b) {
+    $booking = TS_Booking::delete($b);
+    
+    return $booking; 
 }
 ?>

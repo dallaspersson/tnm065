@@ -180,7 +180,7 @@
 						<xsl:otherwise>
 							<xsl:choose>
 								<xsl:when test="$user_id = $current_user_id">
-									<a class="remove_btn" id="{$current_slot_id}" href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
+									<a class="remove_btn" id="{$current_slot_id}:{$current_slot_repetition}:{$current_booking_id}" href="?booking&#38;remove&#38;booking_id={$current_booking_id}">Remove</a>
 								</xsl:when>
 								<xsl:otherwise>
 									Booked
