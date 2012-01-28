@@ -65,8 +65,11 @@ class TS_Booking
 						'repetition' => $this->repetition
 					);
 		
-		if(TS_WordpressDatabaseConnector::insert("timeslot_bookings", $args))
-			return true;
+		if($id = TS_WordpressDatabaseConnector::insert("timeslot_bookings", $args))
+		{
+			$this->id = $id;
+			return $id;
+		}
 			
 		return false;
 	}
