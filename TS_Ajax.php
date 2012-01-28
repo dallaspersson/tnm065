@@ -70,15 +70,18 @@ exit;
 
 
 function book($slot, $user, $res, $rep) {
+
     $booking = new TS_Booking($slot, $user, $res, null, $rep);
     
     $booking->save();
+
     return $booking; 
 }
 
 function unbook($b) {
+
     $booking = TS_Booking::delete($b);
-    
+
     return $booking; 
 }
 ?>
