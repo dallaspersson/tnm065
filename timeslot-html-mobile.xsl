@@ -258,26 +258,43 @@
 	    <xsl:otherwise> 
 				<td> 
 					<xsl:element name="a">
-					  	<xsl:attribute name="href">#
+					  	<xsl:attribute name="href">
+					  		?resource_id=<xsl:value-of select="$current_resource" />&#38;ts_y=<xsl:value-of select="$Year" />&#38;ts_m=<xsl:value-of select="$Month" />&#38;ts_d=<xsl:value-of select="$day" />
 					  	</xsl:attribute>
 					  	<div class="cell-link">
 							<xsl:choose>
 								<!-- If today -->
-								<xsl:when test="$day = $Today">
+								<xsl:when test="$day = date:day-in-month($Today) and $Month = date:month-in-year($Today) and $Year = date:year($Today)">
 									<!--<div class="today">
 										<p>Today</p>
 									</div>-->
-									<strong>
-										<xsl:value-of select="$day" /> 
-									</strong>
+									<xsl:choose>
+										<xsl:when test="$day = date:day-in-month($DisplayDate)">
+											<strong>
+												<xsl:value-of select="$day" />
+											</strong>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="$day" />
+										</xsl:otherwise>
+									</xsl:choose>
 								</xsl:when>
 								<xsl:otherwise>
-								<xsl:value-of select="$day" /> 
-							</xsl:otherwise>
+									<xsl:choose>
+										<xsl:when test="$day = date:day-in-month($DisplayDate)">
+											<strong>
+												<xsl:value-of select="$day" />
+											</strong>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="$day" />
+										</xsl:otherwise>
+									</xsl:choose>
+								</xsl:otherwise>
 							</xsl:choose>
 						</div>
 					</xsl:element>
-				</td> 
+				</td>
 	      <xsl:if test="$count &lt; 7"> 
 	        <xsl:call-template name="CalendarDay"> 
 	          <xsl:with-param name="count" select="$count + 1" /> 
