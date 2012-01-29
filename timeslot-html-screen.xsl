@@ -173,7 +173,7 @@
 				</div>
 	  			
   				<div class="right-booking">
-
+  				
   				<xsl:if test="$current_user_level &gt; -1">
 	  				<!-- Check if user_id exists, if so the slot is booked. -->
 	  				<xsl:choose>

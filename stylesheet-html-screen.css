@@ -1,14 +1,15 @@
 .resources,
 .calendar-content {
-	border:solid 2px #000000;
+	/*border:solid 2px #000000;*/
 	padding: 0px 0px 0px 0px;
 }
 
 .resources {
+	margin:30px 5px 0px 0px;
 	width: 19%;
 	max-width: 19%;
 	float:left;
-	border:solid 2px #000000;
+	/*border:solid 2px #000000;*/
 	padding: 0px 4px 0px 4px;
 	height: 100%;
 }
@@ -56,12 +57,13 @@
 }
 
 .bookings {
+	margin:30px 0px 0px 5px;
 	float:right;
-	width:34%;
+	width:32%;
 }
 
 .bookings-scroll {
-	height:330px;
+	height:300px;
 	overflow-y:auto;
 }
 
