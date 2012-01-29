@@ -6,7 +6,7 @@
 // Load the database
 global $wpdb;
 global $current_user;
-
+global $fresh_booking_id;
 
 if(!isset($wpdb))
 {
@@ -31,6 +31,7 @@ $user = $current_user->ID;
 $fname = $current_user->user_firstname;
 $lname = $current_user->user_lastname;
 
+
 // Check if the POST includes a resource, 
 // else get the first resource ID.
 if ($resource == null) {
@@ -41,6 +42,11 @@ if ($resource == null) {
 switch ($action) {
     case "book":
         $success = book($slot, $user, $resource, $repetition);
+        if ($success != false) {
+            $fresh_booking_id = $success;
+            $success = true;
+        }
+        
         break;
     case "remove":
         $success = unbook($booking);
@@ -50,14 +56,14 @@ switch ($action) {
 if ($success == true){
  
     // generate the response
-    $response = json_encode( array('success'=> true,'message'=>'Hoorray! Amazazing, man!', 'user_fname' => $fname, 'user_lname' => $lname) );
+    $response = json_encode( array('success'=> true,'message'=>'Hoorray! Amazazing, man!', 'user_fname' => $fname, 'user_lname' => $lname, 'fresh_booking_id' => $fresh_booking_id) );
  
     // response output
     echo $response;
 }
 else{
     // generate the response
-    $response = json_encode( array('success'=> false,'message'=>'This is crap, man!', 'user_fname' => $fname, 'user_lname' => $lname) );
+    $response = json_encode( array('success'=> false,'message'=>'This is crap, man!', 'user_fname' => $fname, 'user_lname' => $lname, 'fresh_booking_id' => $fresh_booking_id) );
 
     // response output
     echo $response;
@@ -73,7 +79,12 @@ function book($slot, $user, $res, $rep) {
 
     $booking = new TS_Booking($slot, $user, $res, null, $rep);
     
-    $booking->save();
+    $saving = $booking->save();
+
+    if($saving != false)
+    {
+        return $fresh_booking_id = $booking->getID();
+    }
 
     return $booking; 
 }

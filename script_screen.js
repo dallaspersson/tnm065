@@ -80,6 +80,10 @@
 			            // Change elements class to remove_btn
 			            o.data.btn.removeClass("remove_btn").addClass("book_btn");
 
+			            // Change id
+	            		var tempID = current_slot + ":" + current_rep;
+	            		o.data.btn.attr("id",tempID);
+
 			            // Change button text
 			            o.data.btn.fadeTo('slow', 0.0, function() {
 							o.data.btn.text("Book");
@@ -147,6 +151,10 @@
 
 	            // Change elements class to remove_btn
 	            o.data.btn.removeClass("book_btn").addClass("remove_btn");
+
+	            // Change id
+	            var tempID = current_slot + ":" + current_rep + ":" + data.fresh_booking_id;
+	            o.data.btn.attr("id",tempID);
 
 	            // Change button text
 	            o.data.btn.fadeTo('slow', 0.0, function() {
