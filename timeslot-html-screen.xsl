@@ -53,6 +53,7 @@
 
 	<xsl:template match="resources">
 		<xsl:for-each select="resource">
+			<div class="left-resource">
 			<xsl:choose>
 				<xsl:when test="id = $current_resource">
 					<xsl:element name="a">
@@ -73,8 +74,11 @@
 	      			</xsl:element>
 		      	</xsl:otherwise>
 	      	</xsl:choose>
+	      	</div>
 	      	<xsl:if test="$current_user_level &gt; -1">
+	      		<div class="right-resource">
 	      		<a href="?resource&#38;remove&#38;id={id}">Remove</a>
+	      		</div>
 	      	</xsl:if>
 	    </xsl:for-each>
   	</xsl:template>
