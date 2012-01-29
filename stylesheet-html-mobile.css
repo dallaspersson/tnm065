@@ -13,20 +13,22 @@ h1.big-date{
   font-size:12px;
 }
 
-/* Resources list */
-.left-booking {
-  line-height:80%;
-  width: 70%;
-  max-width: 70%;
-  float:left;
+.bookings {
+  margin:0px 5px 0px 5px;
 }
 
 .right-booking {
-  text-align:right;
 }
 
 .fat-bottom {
-  margin-bottom:12px;
+  margin-bottom:16px;
+}
+
+.tight {
+  line-height:80%;
+  width: 80%;
+  max-width: 80%;
+  float:left;
 }
 
 

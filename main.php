@@ -66,7 +66,19 @@ class TimeSlot
 
 		if ($tmp->is_mobile()) {
 			// Place code you wish to execute if browser is mobile here
+			//wp_enqueue_script( 'script_mobile', $tmp_url . 'script_mobile.js', array( 'jquery' ));
+
+			// Embed the javascript file that makes the AJAX request
 			wp_enqueue_script( 'script_mobile', $tmp_url . 'script_mobile.js', array( 'jquery' ));
+
+			// declare the URL to the file that handles the AJAX request (wp-admin/admin-ajax.php)
+			wp_localize_script( 'script_mobile', 'MyAjax', array( 'ajaxurl' => $tmp_url . 'TS_Ajax.php' ) );
+
+			// this hook is fired if the current viewer is not logged in
+			do_action( 'wp_ajax_nopriv_' . $_REQUEST['action'] );
+			 
+			// if logged in:
+			do_action( 'wp_ajax_' . $_POST['action'] );
 		}
 
 		else {
