@@ -12,7 +12,9 @@
 					<xsl:apply-templates select="resources" />
 					
 					<xsl:if test="$current_user_level &gt; -1">
-						<a href="?resource&#38;add">Add resource</a>
+						<a href="?resource&#38;add">Add resource</a><br/><br/>
+						<a href="?schedule&#38;add">Add schedule</a><br/>
+						<a href="?schedule&#38;edit">Edit schedules</a>
 					</xsl:if>
 				</div>
 			</div>

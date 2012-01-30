@@ -419,29 +419,32 @@ class TimeSlot
 		 *	<!ELEMENT user (firstname, lastname, e-mail, avatar?, id, role, user-allowances?)>
 		 */
 		
-		// create an array with all user ids that have at least one booking
-		$usersWithBooking = array();
-		
-		foreach($bookings as $booking)
+		if(!empty($bookings))
 		{
-			array_push($usersWithBooking, $booking->getUser());
-		}
-		
-		$users = TS_User::getUsers($usersWithBooking);
-		
-		$users_element = $xml->createElement("users");
-		$timeslot_element->appendChild($users_element);
-		
-		foreach($users as $user)
-		{
-			$user_element = $xml->createElement("user");
-			$users_element->appendChild($user_element);
+			// create an array with all user ids that have at least one booking
+			$usersWithBooking = array();
 			
-			$user_element->appendChild( $xml->createElement("firstname", $user->user_firstname) );
-			$user_element->appendChild( $xml->createElement("lastname", $user->user_lastname) );
-			$user_element->appendChild( $xml->createElement("e-mail", $user->user_email) );
-			$user_element->appendChild( $xml->createElement("id", $user->ID) );
-			$user_element->appendChild( $xml->createElement("role", $user->user_level) );
+			foreach($bookings as $booking)
+			{
+				array_push($usersWithBooking, $booking->getUser());
+			}
+			
+			$users = TS_User::getUsers($usersWithBooking);
+			
+			$users_element = $xml->createElement("users");
+			$timeslot_element->appendChild($users_element);
+			
+			foreach($users as $user)
+			{
+				$user_element = $xml->createElement("user");
+				$users_element->appendChild($user_element);
+				
+				$user_element->appendChild( $xml->createElement("firstname", $user->user_firstname) );
+				$user_element->appendChild( $xml->createElement("lastname", $user->user_lastname) );
+				$user_element->appendChild( $xml->createElement("e-mail", $user->user_email) );
+				$user_element->appendChild( $xml->createElement("id", $user->ID) );
+				$user_element->appendChild( $xml->createElement("role", $user->user_level) );
+			}
 		}
 
 		/* ---------------------------------------- */
@@ -617,7 +620,7 @@ class TimeSlot
 		$standardView = $parser->transformToXML($xml);
 		
 		// Validate XML file against it's DTD
-		echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
+		//echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
 		
 		
 /*
@@ -935,6 +938,17 @@ class TimeSlot
 						$form .= '</form>';
 						
 						$return = $form;
+					}
+					else
+					{
+						// Create list of schedules
+					 	$schedules = TS_Schedule::getSchedule();
+					 	$form .= '<ul>';
+					 	foreach($schedules as $schedule)
+					 		$form .= '<li><a href="?schedule&edit&schedule_id=' . $schedule->getID() . '">id: ' . $schedule->getID() . '</a></li>';
+					 	$form .= '</ul>';
+					 	
+					 	$return = $form;
 					}
 				}
 				else if(isset($_GET['remove']))

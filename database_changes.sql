@@ -13,6 +13,12 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- Database: `web75757_sandbox`
 --
 
+CREATE TABLE IF NOT EXISTS `timeslot_resources` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` text NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
 -- --------------------------------------------------------
 
 --
@@ -37,11 +43,7 @@ CREATE TABLE IF NOT EXISTS `timeslot_bookings` (
 -- Table structure for table `timeslot_resources`
 --
 
-CREATE TABLE IF NOT EXISTS `timeslot_resources` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` text NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
 
 
 -- ---------------------------------------------------------------
