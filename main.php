@@ -620,7 +620,7 @@ class TimeSlot
 		$standardView = $parser->transformToXML($xml);
 		
 		// Validate XML file against it's DTD
-		//echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
+		echo $xml->validate() ? "Validated! Waffle fries… FO' FREE!" : "Not validated. Let sadness commence.";
 		
 		
 /*
